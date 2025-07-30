@@ -24,11 +24,7 @@ namespace RecordManagementSystem.Controllers.Account
         public ActionResult<AddStudentUserDataDTO> GetId(int id)
         {
             var user = _services.GetIdUsers(id);
-            if(user != null)
-            {
-                return Ok(user);
-            }
-            return BadRequest();
+            return Ok(user);
         }
 
         [HttpPost("AddStudentUserData")]
@@ -38,7 +34,8 @@ namespace RecordManagementSystem.Controllers.Account
             {
                 var addStudent = _mapper.Map<AddStudentUserDataDTO>(userData);
                 var UserId = await _services.AddStudentData(addStudent);
-                return CreatedAtAction("GetId", new { id = UserId.Id }, addStudent);  
+
+                return CreatedAtAction("GetId", new { id = UserId.Id }, UserId);
             }
             return BadRequest();
         }

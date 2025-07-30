@@ -25,10 +25,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             {
                 return Result<StudentUserData>.Ok(User);
             }
-            else
-            {
-                return Result<StudentUserData>.Fail("Not found!");
-            }
+            return Result<StudentUserData>.Fail("Not found!");
         }
 
         public async Task<AddStudentUserDataDTO> AddStudentData(AddStudentUserDataDTO add)
