@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using RecordManagementSystem.Infrastructure.Repository.Features.Account;
 using RecordManagementSystem.Application.Features.Account.Service;
-using RecordManagementSystem.Application.Map;
 using RecordManagementSystem.Map;
+using RecordManagementSystem.Application.Common.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 

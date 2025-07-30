@@ -20,18 +20,28 @@ namespace RecordManagementSystem.Controllers.Account
             _mapper = mapper;
         }
 
-    
+        [HttpGet("{id}")]
+        public ActionResult<AddStudentUserDataDTO> GetId(int id)
+        {
+            var user = _services.GetIdUsers(id);
+            if(user != null)
+            {
+                return Ok(user);
+            }
+            return BadRequest();
+        }
 
         [HttpPost("AddStudentUserData")]
-        public async Task<IActionResult> AddStudentUsersData([FromBody]AccountDTO userData) 
+        public async Task<ActionResult> AddStudentUsersData([FromBody]AccountDTO userData) 
         {
             if (ModelState.IsValid)
             {
                 var addStudent = _mapper.Map<AddStudentUserDataDTO>(userData);
-                await _services.AddStudentData(addStudent);
-                return Ok(addStudent);  
+                var UserId = await _services.AddStudentData(addStudent);
+                return CreatedAtAction("GetId", new { id = UserId.Id }, addStudent);  
             }
             return BadRequest();
         }
+
     }
 }

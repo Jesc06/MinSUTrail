@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RecordManagementSystem.Application.Features.Account.DTO;
 using RecordManagementSystem.Application.Features.Account.Interface;
 using RecordManagementSystem.Domain.Entities.Account;
+using RecordManagementSystem.Application.Common.Models;
 
 namespace RecordManagementSystem.Application.Features.Account.Service
 {
@@ -17,13 +18,22 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             _addStudentUserData = addStudentUserData;
         }
 
-        public async Task<StudentUserData> GetIdUsers(int id)
+        public async Task<Result<StudentUserData>> GetIdUsers(int id)
         {
-            return await _addStudentUserData.GetUserId(id);
+            var User = await _addStudentUserData.GetUserId(id);
+            if(User != null)
+            {
+                return Result<StudentUserData>.Ok(User);
+            }
+            else
+            {
+                return Result<StudentUserData>.Fail("Not found!");
+            }
         }
-        public async Task AddStudentData(AddStudentUserDataDTO add)
+
+        public async Task<AddStudentUserDataDTO> AddStudentData(AddStudentUserDataDTO add)
         {
-            await _addStudentUserData.AddStudent(add);
+            return await _addStudentUserData.AddStudent(add);
         }
 
     }

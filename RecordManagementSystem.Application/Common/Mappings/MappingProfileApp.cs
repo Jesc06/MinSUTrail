@@ -8,7 +8,7 @@ using RecordManagementSystem.Application.Features.Account.DTO;
 using RecordManagementSystem.Domain.Entities.Account;
 
 
-namespace RecordManagementSystem.Application.Map
+namespace RecordManagementSystem.Application.Common.Mappings
 {
     public class MappingProfileApp : Profile
     {
