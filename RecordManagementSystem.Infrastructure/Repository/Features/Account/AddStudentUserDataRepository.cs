@@ -11,6 +11,8 @@ using RecordManagementSystem.Domain.Entities.Account;
 using RecordManagementSystem.Application.Common.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Azure;
 
 
 namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
@@ -27,14 +29,38 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             _mapper = mapper;
         }
 
-        public async Task<StudentUserData> GetUserId(int id)
+        public async Task<AddStudentUserDataDTO> GetUserId(int id)
         {
             var UserId = _context.studentUserData.FirstOrDefault(Users => Users.Id == id);
-            return UserId;
+
+            if(UserId == null) { return null; }
+
+            var dto = new AddStudentUserDataDTO
+            {
+                Id = UserId.Id,
+                FirstName = UserId.FirstName,
+                Middlename = UserId.Middlename,
+                LastName = UserId.LastName,
+                Gender = UserId.Gender,
+                YearOfBirth = UserId.YearOfBirth,
+                MonthOfBirth = UserId.MonthOfBirth,
+                DateOfBirth = UserId.DateOfBirth,
+                HomeAddress = UserId.HomeAddress,
+                MobileNumber = UserId.MobileNumber,
+                Email = UserId.Email,
+                Program = UserId.Program,
+                YearLevel = UserId.YearLevel,
+                StudentID = UserId.StudentID,
+                Password = UserId.Password,
+            };
+        
+            return dto;
         }
+
 
         public async Task<AddStudentUserDataDTO> AddStudent(AddStudentUserDataDTO addStudentDTO)
         {
+       
             var addStudent = _mapper.Map<StudentUserData>(addStudentDTO);
             await _context.AddAsync(addStudent);
             await _context.SaveChangesAsync();

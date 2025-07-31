@@ -1,4 +1,4 @@
-using RecordManagementSystem.Infrastructure.Persistence.Data;
+﻿using RecordManagementSystem.Infrastructure.Persistence.Data;
 using RecordManagementSystem.Application.Features.Account.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -6,6 +6,7 @@ using RecordManagementSystem.Infrastructure.Repository.Features.Account;
 using RecordManagementSystem.Application.Features.Account.Service;
 using RecordManagementSystem.Map;
 using RecordManagementSystem.Application.Common.Mappings;
+using RecordManagementSystem.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,7 @@ builder.Services.AddScoped<AddStudentUserDataServices>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfileApp), typeof(MappingProfile));
 
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -36,10 +38,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 
 app.MapGet("/", context => 
 {

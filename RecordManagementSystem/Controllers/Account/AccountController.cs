@@ -5,6 +5,8 @@ using RecordManagementSystem.Application.Features.Account.Service;
 using RecordManagementSystem.Application.Features.Account.DTO;
 using AutoMapper;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace RecordManagementSystem.Controllers.Account
 {
@@ -20,12 +22,14 @@ namespace RecordManagementSystem.Controllers.Account
             _mapper = mapper;
         }
 
+
         [HttpGet("{id}")]
         public ActionResult<AddStudentUserDataDTO> GetId(int id)
         {
             var user = _services.GetIdUsers(id);
             return Ok(user);
         }
+
 
         [HttpPost("AddStudentUserData")]
         public async Task<ActionResult> AddStudentUsersData([FromBody]AccountDTO userData) 
@@ -35,10 +39,11 @@ namespace RecordManagementSystem.Controllers.Account
                 var addStudent = _mapper.Map<AddStudentUserDataDTO>(userData);
                 var UserId = await _services.AddStudentData(addStudent);
 
-                return CreatedAtAction("GetId", new { id = UserId.Id }, UserId);
+                return CreatedAtAction(nameof(GetId), new { id = UserId.Id }, UserId);
             }
             return BadRequest();
         }
+
 
     }
 }
