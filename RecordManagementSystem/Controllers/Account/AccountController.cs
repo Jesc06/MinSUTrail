@@ -24,22 +24,22 @@ namespace RecordManagementSystem.Controllers.Account
 
 
         [HttpGet("{id}")]
-        public ActionResult<AddStudentUserDataDTO> GetId(int id)
+        public ActionResult<AddStudentAccountDTO> GetUserId(int id)
         {
-            var user = _services.GetIdUsers(id);
+            var user = _services.GetUsersId(id);
             return Ok(user);
         }
 
 
-        [HttpPost("AddStudentUserData")]
-        public async Task<ActionResult> AddStudentUsersData([FromBody]AccountDTO userData) 
+        [HttpPost("AddStudentAccount")]
+        public async Task<ActionResult> AddStudentAccount([FromBody]AccountDTO userData) 
         {
             if (ModelState.IsValid)
             {
-                var addStudent = _mapper.Map<AddStudentUserDataDTO>(userData);
-                var UserId = await _services.AddStudentData(addStudent);
+                var addStudent = _mapper.Map<AddStudentAccountDTO>(userData);
+                var UserId = await _services.AddStudentAccount(addStudent);
 
-                return CreatedAtAction(nameof(GetId), new { id = UserId.Id }, UserId);
+                return CreatedAtAction(nameof(GetUserId), new { id = UserId.Id }, UserId);
             }
             return BadRequest();
         }

@@ -14,7 +14,8 @@ namespace RecordManagementSystem.Application.Common.Mappings
     {
         public MappingProfileApp()
         {
-            CreateMap<AddStudentUserDataDTO,StudentUserData>();
+            CreateMap<AddStudentAccountDTO,StudentUserAccount>();
+            CreateMap<StudentUserAccount, AddStudentAccountDTO>();
         }
     }
 }

@@ -29,45 +29,32 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             _mapper = mapper;
         }
 
-        public async Task<AddStudentUserDataDTO> GetUserId(int id)
-        {
-            var UserId = _context.studentUserData.FirstOrDefault(Users => Users.Id == id);
-
-            if(UserId == null) { return null; }
-
-            var dto = new AddStudentUserDataDTO
-            {
-                Id = UserId.Id,
-                FirstName = UserId.FirstName,
-                Middlename = UserId.Middlename,
-                LastName = UserId.LastName,
-                Gender = UserId.Gender,
-                YearOfBirth = UserId.YearOfBirth,
-                MonthOfBirth = UserId.MonthOfBirth,
-                DateOfBirth = UserId.DateOfBirth,
-                HomeAddress = UserId.HomeAddress,
-                MobileNumber = UserId.MobileNumber,
-                Email = UserId.Email,
-                Program = UserId.Program,
-                YearLevel = UserId.YearLevel,
-                StudentID = UserId.StudentID,
-                Password = UserId.Password,
-            };
-        
-            return dto;
-        }
-
-
-        public async Task<AddStudentUserDataDTO> AddStudent(AddStudentUserDataDTO addStudentDTO)
+      
+        public async Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO addStudentDTO)
         {
        
-            var addStudent = _mapper.Map<StudentUserData>(addStudentDTO);
-            await _context.AddAsync(addStudent);
+            var addStudentAccount = _mapper.Map<StudentUserAccount>(addStudentDTO);
+            await _context.AddAsync(addStudentAccount);
             await _context.SaveChangesAsync();
 
-            addStudentDTO.Id = addStudent.Id;
+            addStudentDTO.Id = addStudentAccount.Id;
             return addStudentDTO;
         }
+
+
+        public async Task<AddStudentAccountDTO> GetUserId(int id)
+        {
+            var UserId = _context.studentUserAccount.FirstOrDefault(Users => Users.Id == id);
+
+            if (UserId == null) { return null; }
+
+            var UserData = _mapper.Map<AddStudentAccountDTO>(UserId);
+
+            return UserData;
+        }
+
+
+
 
 
     }

@@ -8,7 +8,7 @@ namespace RecordManagementSystem.Map
     {
         public MappingProfile()
         {
-            CreateMap<AccountDTO,AddStudentUserDataDTO>();
+            CreateMap<AccountDTO,AddStudentAccountDTO>();
         }
     }
 }

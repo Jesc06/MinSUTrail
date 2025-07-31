@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RecordManagementSystem.Application.Features.Account.DTO
 {
-    public class AddStudentUserDataDTO
+    public class AddStudentAccountDTO
     {
         public int Id { get; set; }
         public string FirstName { get; set; }

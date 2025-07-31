@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RecordManagementSystem.Domain.Entities.Account
+namespace RecordManagementSystem.Application.Features.Account.DTO
 {
-    public class StudentUserData
+    public class GetStudentAccountDTO
     {
-        public int Id { get; set; }
         public string FirstName { get; set; }
         public string Middlename { get; set; }
         public string LastName { get; set; }
@@ -22,6 +21,5 @@ namespace RecordManagementSystem.Domain.Entities.Account
         public string Program { get; set; }
         public string YearLevel { get; set; }
         public string StudentID { get; set; }
-        public string Password { get; set; }
     }
 }

@@ -10,7 +10,9 @@ namespace RecordManagementSystem.Application.Features.Account.Interface
 {
     public interface IAddStudentUserData
     {
-        Task<AddStudentUserDataDTO> AddStudent(AddStudentUserDataDTO add);
-        Task<AddStudentUserDataDTO> GetUserId(int Id);
+        Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO add);
+        Task<AddStudentAccountDTO> GetUserId(int Id);
+       // Task<GetStudentAccountDTO> GetAllStudentAccount();
+       
     }
 }

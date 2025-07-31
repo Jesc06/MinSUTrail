@@ -43,8 +43,6 @@ namespace RecordManagementSystem.Middleware
               
                 var traceId = context.TraceIdentifier;
 
-                _logger.LogError(ex, "An unhandled exception occurred.", traceId);
-
                 var errorResponse = new
                 {
                     statusCode = 500,

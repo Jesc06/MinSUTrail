@@ -18,21 +18,20 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             _addStudentUserData = addStudentUserData;
         }
 
-
-        public async Task<Result<AddStudentUserDataDTO>> GetIdUsers(int id)
+        public async Task<Result<AddStudentAccountDTO>> GetUsersId(int id)
         {
             var UserId = await _addStudentUserData.GetUserId(id);
             if(UserId != null)
             {
-                return Result<AddStudentUserDataDTO>.Ok(UserId);
+                return Result<AddStudentAccountDTO>.Ok(UserId);
             }
-            return Result<AddStudentUserDataDTO>.Fail("Not found!");
+            return Result<AddStudentAccountDTO>.Fail("Not found!");
         }
 
 
-        public async Task<AddStudentUserDataDTO> AddStudentData(AddStudentUserDataDTO add)
+        public async Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO add)
         {
-            return await _addStudentUserData.AddStudent(add);
+            return await _addStudentUserData.AddStudentAccount(add);
         }
 
     }

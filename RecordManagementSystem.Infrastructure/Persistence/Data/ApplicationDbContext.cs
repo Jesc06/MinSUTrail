@@ -13,6 +13,6 @@ namespace RecordManagementSystem.Infrastructure.Persistence.Data
     public class ApplicationDbContext : IdentityDbContext<UserIdentity>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-        public DbSet<StudentUserData> studentUserData { get; set; }
+        public DbSet<StudentUserAccount> studentUserAccount { get; set; }
     }
 }
