@@ -24,11 +24,23 @@ builder.Services.AddIdentity<UserIdentity, IdentityRole>()
     .AddDefaultTokenProviders()
     .AddRoles<IdentityRole>();
 
-builder.Services.AddScoped<IAddStudentUserData, AddStudentUserDataRepository>();
-builder.Services.AddScoped<AddStudentUserDataServices>();
+builder.Services.AddScoped<IAddStudentUserData, AddStudentUserAccountRepository>();
+builder.Services.AddScoped<AddStudentUserAccountServices>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfileApp), typeof(MappingProfile));
 
+
+builder.Services.AddCors(options =>
+{
+
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+
+});
 
 var app = builder.Build();
 
@@ -42,6 +54,7 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowAll");
 app.MapControllers();
 
 

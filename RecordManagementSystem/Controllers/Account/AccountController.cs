@@ -14,9 +14,9 @@ namespace RecordManagementSystem.Controllers.Account
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly AddStudentUserDataServices _services;
+        private readonly AddStudentUserAccountServices _services;
         private readonly IMapper _mapper;
-        public AccountController(AddStudentUserDataServices services, IMapper mapper)
+        public AccountController(AddStudentUserAccountServices services, IMapper mapper)
         {
             _services = services;
             _mapper = mapper;
@@ -42,6 +42,14 @@ namespace RecordManagementSystem.Controllers.Account
                 return CreatedAtAction(nameof(GetUserId), new { id = UserId.Id }, UserId);
             }
             return BadRequest();
+        }
+
+
+        [HttpGet("GetAllStudentAccount")]
+        public async Task<ActionResult> GetAllStudentAccount()
+        {
+            var GetAllAccounts = await _services.GetAllStudentAccounts();
+            return Ok(GetAllAccounts);
         }
 
 

@@ -17,12 +17,12 @@ using Azure;
 
 namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
 {
-    public class AddStudentUserDataRepository : IAddStudentUserData 
+    public class AddStudentUserAccountRepository : IAddStudentUserData 
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<UserIdentity> _userManager;
         private readonly IMapper _mapper;
-        public AddStudentUserDataRepository(IMapper mapper,ApplicationDbContext context, UserManager<UserIdentity> userManager)
+        public AddStudentUserAccountRepository(IMapper mapper,ApplicationDbContext context, UserManager<UserIdentity> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -32,7 +32,6 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
       
         public async Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO addStudentDTO)
         {
-       
             var addStudentAccount = _mapper.Map<StudentUserAccount>(addStudentDTO);
             await _context.AddAsync(addStudentAccount);
             await _context.SaveChangesAsync();
@@ -53,6 +52,28 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             return UserData;
         }
 
+
+        public async Task<IEnumerable<GetStudentAccountDTO>> GetAllStudentAccount()
+        {
+            return await _context.studentUserAccount.Select(Users => new GetStudentAccountDTO
+            {
+                Id = Users.Id,
+                FirstName = Users.FirstName,
+                Middlename = Users.Middlename,
+                LastName = Users.LastName,
+                Gender = Users.Gender,
+                YearOfBirth = Users.YearOfBirth,
+                MonthOfBirth = Users.MonthOfBirth,
+                DateOfBirth = Users.DateOfBirth,
+                HomeAddress = Users.HomeAddress,
+                MobileNumber = Users.MobileNumber,
+                Email = Users.Email,
+                Program = Users.Program,
+                YearLevel = Users.YearLevel,
+                StudentID = Users.StudentID
+            }).ToListAsync();
+
+        }
 
 
 

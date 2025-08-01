@@ -5,6 +5,10 @@
 *.userosscache
 *.sln.docstates
 
+# Client Side
+
+RecordManagementSystemClient/
+
 # Build results
 bin/
 obj/

@@ -8,6 +8,7 @@ namespace RecordManagementSystem.Application.Features.Account.DTO
 {
     public class GetStudentAccountDTO
     {
+        public int Id { get; set; }
         public string FirstName { get; set; }
         public string Middlename { get; set; }
         public string LastName { get; set; }

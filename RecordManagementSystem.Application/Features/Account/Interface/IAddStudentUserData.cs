@@ -12,7 +12,7 @@ namespace RecordManagementSystem.Application.Features.Account.Interface
     {
         Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO add);
         Task<AddStudentAccountDTO> GetUserId(int Id);
-       // Task<GetStudentAccountDTO> GetAllStudentAccount();
+        Task<IEnumerable<GetStudentAccountDTO>> GetAllStudentAccount();
        
     }
 }
