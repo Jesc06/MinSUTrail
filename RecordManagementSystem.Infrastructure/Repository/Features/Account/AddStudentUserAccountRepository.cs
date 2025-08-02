@@ -70,11 +70,28 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
                 Email = Users.Email,
                 Program = Users.Program,
                 YearLevel = Users.YearLevel,
-                StudentID = Users.StudentID
+                StudentID = Users.StudentID,
+                Password = Users.Password
             }).ToListAsync();
 
         }
 
+
+        public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount, int UserId)
+        {
+            UserIdentity userData = new UserIdentity
+            {
+                FirstName = registerAccount.Firtsname,
+                MiddleName = registerAccount.MiddleName,
+                LastName = registerAccount.LastName
+            };
+            var register = await _userManager.CreateAsync(userData, registerAccount.Password);
+            if (register.Succeeded)
+            {
+                return true;
+            }
+            return false;
+        }
 
 
 

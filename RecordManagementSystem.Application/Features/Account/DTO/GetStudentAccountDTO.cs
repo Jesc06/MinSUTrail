@@ -22,5 +22,6 @@ namespace RecordManagementSystem.Application.Features.Account.DTO
         public string Program { get; set; }
         public string YearLevel { get; set; }
         public string StudentID { get; set; }
+        public string Password { get; set; }
     }
 }
