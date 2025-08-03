@@ -9,11 +9,9 @@ using RecordManagementSystem.Infrastructure.Persistence.Data;
 using RecordManagementSystem.Application.Features.Account.DTO;
 using RecordManagementSystem.Domain.Entities.Account;
 using RecordManagementSystem.Application.Common.Models;
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Azure;
-
 
 namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
 {
@@ -21,18 +19,31 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<UserIdentity> _userManager;
-        private readonly IMapper _mapper;
-        public AddStudentUserAccountRepository(IMapper mapper,ApplicationDbContext context, UserManager<UserIdentity> userManager)
+        public AddStudentUserAccountRepository(ApplicationDbContext context, UserManager<UserIdentity> userManager)
         {
             _context = context;
             _userManager = userManager;
-            _mapper = mapper;
         }
 
-      
         public async Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO addStudentDTO)
         {
-            var addStudentAccount = _mapper.Map<StudentUserAccount>(addStudentDTO);
+            var addStudentAccount = new StudentUserAccount
+            {
+                FirstName = addStudentDTO.FirstName,
+                Middlename = addStudentDTO.Middlename,
+                LastName = addStudentDTO.LastName,
+                Gender = addStudentDTO.Gender,
+                YearOfBirth = addStudentDTO.YearOfBirth,
+                MonthOfBirth = addStudentDTO.MonthOfBirth,
+                DateOfBirth = addStudentDTO.DateOfBirth,
+                HomeAddress = addStudentDTO.HomeAddress,
+                MobileNumber = addStudentDTO.MobileNumber,
+                Email = addStudentDTO.Email,
+                Program = addStudentDTO.Program,
+                YearLevel = addStudentDTO.YearLevel,
+                StudentID = addStudentDTO.StudentID,
+                Password = addStudentDTO.Password
+            };
             await _context.AddAsync(addStudentAccount);
             await _context.SaveChangesAsync();
 
@@ -40,18 +51,33 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             return addStudentDTO;
         }
 
-
-        public async Task<AddStudentAccountDTO> GetUserId(int id)
+        public async Task<AddStudentAccountDTO> GetStudentUserId(int id)
         {
             var UserId = _context.studentUserAccount.FirstOrDefault(Users => Users.Id == id);
 
             if (UserId == null) { return null; }
 
-            var UserData = _mapper.Map<AddStudentAccountDTO>(UserId);
+            var UserData = new AddStudentAccountDTO
+            {
+                Id = UserId.Id,
+                FirstName = UserId.FirstName,
+                Middlename = UserId.Middlename,
+                LastName = UserId.LastName,
+                Gender = UserId.Gender,
+                YearOfBirth = UserId.YearOfBirth,   
+                MonthOfBirth = UserId.MonthOfBirth,
+                DateOfBirth = UserId.DateOfBirth,
+                HomeAddress = UserId.HomeAddress,
+                MobileNumber = UserId.MobileNumber,
+                Email = UserId.Email,
+                Program = UserId.Program,
+                YearLevel = UserId.YearLevel,   
+                StudentID = UserId.StudentID,
+                Password = UserId.Password,
+            };
 
             return UserData;
         }
-
 
         public async Task<IEnumerable<GetStudentAccountDTO>> GetAllStudentAccount()
         {
@@ -76,9 +102,9 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
 
         }
 
-
-        public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount, int UserId)
+        public async Task RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
+
             UserIdentity userData = new UserIdentity
             {
                 FirstName = registerAccount.Firtsname,
@@ -88,10 +114,11 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             var register = await _userManager.CreateAsync(userData, registerAccount.Password);
             if (register.Succeeded)
             {
-                return true;
+                await _userManager.AddToRoleAsync(userData, "Student");
             }
-            return false;
+
         }
+
 
 
 

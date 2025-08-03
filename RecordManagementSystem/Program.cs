@@ -4,8 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using RecordManagementSystem.Infrastructure.Repository.Features.Account;
 using RecordManagementSystem.Application.Features.Account.Service;
-using RecordManagementSystem.Map;
-using RecordManagementSystem.Application.Common.Mappings;
+using RecordManagementSystem.Infrastructure.Persistence.Seeder;
 using RecordManagementSystem.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +18,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
     builder.Configuration.GetConnectionString("default")
 ));
 
-builder.Services.AddIdentity<UserIdentity, IdentityRole>()
+builder.Services.AddIdentity<UserIdentity, IdentityRole>(option => 
+    {
+        option.Password.RequireDigit = false;
+        option.Password.RequiredLength = 3;
+        option.Password.RequireLowercase = false;
+        option.Password.RequireUppercase = false;
+        option.Password.RequireNonAlphanumeric = false;
+
+        option.User.RequireUniqueEmail = true;
+        option.SignIn.RequireConfirmedEmail = false;
+    })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders()
     .AddRoles<IdentityRole>();
@@ -27,19 +36,15 @@ builder.Services.AddIdentity<UserIdentity, IdentityRole>()
 builder.Services.AddScoped<IAddStudentUserData, AddStudentUserAccountRepository>();
 builder.Services.AddScoped<AddStudentUserAccountServices>();
 
-builder.Services.AddAutoMapper(typeof(MappingProfileApp), typeof(MappingProfile));
-
 
 builder.Services.AddCors(options =>
 {
-
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
-
 });
 
 var app = builder.Build();
@@ -64,5 +69,12 @@ app.MapGet("/", context =>
     return Task.CompletedTask;
 });
 
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserIdentity>>();
+    await RoleSeeder.Roles(roleManager, userManager);
+}
 
 app.Run();

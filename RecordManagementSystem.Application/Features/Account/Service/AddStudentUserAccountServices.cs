@@ -23,9 +23,9 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return await _servicesData.AddStudentAccount(add);
         }
 
-        public async Task<Result<AddStudentAccountDTO>> GetUsersId(int id)
+        public async Task<Result<AddStudentAccountDTO>> GetStudentUserId(int id)
         {
-            var UserId = await _servicesData.GetUserId(id);
+            var UserId = await _servicesData.GetStudentUserId(id);
             if (UserId != null)
             {
                 return Result<AddStudentAccountDTO>.Ok(UserId);
@@ -38,15 +38,20 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return await _servicesData.GetAllStudentAccount();
         }
 
-        public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount, int UserId)
+        public async Task RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
-            var register = await _servicesData.RegisterStudentAccount(registerAccount, UserId);
-            if (register)
+            try
             {
-                return true;
+                await _servicesData.RegisterStudentAccount(registerAccount);
             }
-            return false;
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            
         }
+
+    
 
     }
 }

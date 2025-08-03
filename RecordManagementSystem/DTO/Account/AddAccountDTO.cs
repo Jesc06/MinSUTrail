@@ -2,7 +2,7 @@
 
 namespace RecordManagementSystem.DTO.Account
 {
-    public class AccountDTO
+    public class AddAccountDTO
     {
         [Required(ErrorMessage = "Firstname is required")]
         public string FirstName { get; set; }
