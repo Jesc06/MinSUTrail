@@ -9,6 +9,7 @@ using RecordManagementSystem.Infrastructure.Persistence.Data;
 using RecordManagementSystem.Application.Features.Account.DTO;
 using RecordManagementSystem.Domain.Entities.Account;
 using RecordManagementSystem.Application.Common.Models;
+using RecordManagementSystem.Infrastructure.Persistence.Seeder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Azure;
@@ -19,10 +20,12 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<UserIdentity> _userManager;
-        public AddStudentUserAccountRepository(ApplicationDbContext context, UserManager<UserIdentity> userManager)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public AddStudentUserAccountRepository(RoleManager<IdentityRole> roleManager,ApplicationDbContext context, UserManager<UserIdentity> userManager)
         {
             _context = context;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public async Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO addStudentDTO)
@@ -99,27 +102,34 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
                 StudentID = Users.StudentID,
                 Password = Users.Password
             }).ToListAsync();
-
         }
 
         public async Task RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
-
             UserIdentity userData = new UserIdentity
-            {
+            { 
                 FirstName = registerAccount.Firtsname,
                 MiddleName = registerAccount.MiddleName,
-                LastName = registerAccount.LastName
+                LastName = registerAccount.LastName,
+                Email = registerAccount.Email,
+                UserName = registerAccount.Email
             };
             var register = await _userManager.CreateAsync(userData, registerAccount.Password);
             if (register.Succeeded)
             {
-                await _userManager.AddToRoleAsync(userData, "Student");
+                var roles = await _userManager.AddToRoleAsync(userData,"Student");
+                if (!roles.Succeeded)
+                {
+                    var errors = string.Join(", ", roles.Errors.Select(e => e.Description));
+                    throw new Exception(errors);
+                }
             }
-
+            else
+            {
+                var errors = string.Join(", ", register.Errors.Select(e => e.Description));
+                throw new Exception($"Failed to create user: {errors}");
+            }
         }
-
-
 
 
     }

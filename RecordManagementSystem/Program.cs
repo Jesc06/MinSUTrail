@@ -47,6 +47,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -76,5 +77,7 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserIdentity>>();
     await RoleSeeder.Roles(roleManager, userManager);
 }
+
+
 
 app.Run();

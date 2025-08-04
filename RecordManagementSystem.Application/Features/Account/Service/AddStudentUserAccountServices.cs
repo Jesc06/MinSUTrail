@@ -40,15 +40,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
 
         public async Task RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
-            try
-            {
-                await _servicesData.RegisterStudentAccount(registerAccount);
-            }
-            catch(Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            
+            await _servicesData.RegisterStudentAccount(registerAccount);
         }
 
     

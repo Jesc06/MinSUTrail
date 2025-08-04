@@ -67,9 +67,8 @@ namespace RecordManagementSystem.Controllers.Account
         }
 
 
-
         [HttpPost("RegisterStudentAccount")]
-        public async Task<IActionResult> RegisterStudentAccount(RegisterDTO registerDto)
+        public async Task<ActionResult> RegisterStudentAccount(RegisterDTO registerDto)
         {
             if (ModelState.IsValid)
             {

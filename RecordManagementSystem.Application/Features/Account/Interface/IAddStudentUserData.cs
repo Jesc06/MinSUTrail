@@ -15,6 +15,5 @@ namespace RecordManagementSystem.Application.Features.Account.Interface
         Task<AddStudentAccountDTO> GetStudentUserId(int Id);
         Task<IEnumerable<GetStudentAccountDTO>> GetAllStudentAccount();
         Task RegisterStudentAccount(RegisterStudentAccountDTO registerDTO);
-       
     }
 }
