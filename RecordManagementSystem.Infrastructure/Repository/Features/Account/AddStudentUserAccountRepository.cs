@@ -104,7 +104,7 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             }).ToListAsync();
         }
 
-        public async Task RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
+        public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
             UserIdentity userData = new UserIdentity
             { 
@@ -118,18 +118,11 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             if (register.Succeeded)
             {
                 var roles = await _userManager.AddToRoleAsync(userData,"Student");
-                if (!roles.Succeeded)
-                {
-                    var errors = string.Join(", ", roles.Errors.Select(e => e.Description));
-                    throw new Exception(errors);
-                }
+                return true;
             }
-            else
-            {
-                var errors = string.Join(", ", register.Errors.Select(e => e.Description));
-                throw new Exception($"Failed to create user: {errors}");
-            }
+            return false;
         }
+
 
 
     }

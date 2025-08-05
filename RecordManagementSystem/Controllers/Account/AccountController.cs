@@ -80,8 +80,12 @@ namespace RecordManagementSystem.Controllers.Account
                     Email = registerDto.Email,
                     Password = registerDto.Password
                 };
-                await _services.RegisterStudentAccount(register);
-                return Created();
+                var IsRegister = await _services.RegisterStudentAccount(register);
+                if (IsRegister)
+                {
+                    return Created();
+                }
+                return BadRequest();
             }
             return BadRequest();    
         }

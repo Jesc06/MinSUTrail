@@ -38,9 +38,14 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return await _servicesData.GetAllStudentAccount();
         }
 
-        public async Task RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
+        public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
-            await _servicesData.RegisterStudentAccount(registerAccount);
+            var IsRegister = await _servicesData.RegisterStudentAccount(registerAccount);
+            if (IsRegister)
+            {
+                return true;
+            }
+            return false;
         }
 
     
