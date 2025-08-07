@@ -118,6 +118,12 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             if (register.Succeeded)
             {
                 var roles = await _userManager.AddToRoleAsync(userData,"Student");
+                var find = _context.studentUserAccount.Find(registerAccount.Id);
+                if(find is not null)
+                {
+                    var suc = _context.studentUserAccount.Remove(find);
+                    _context.SaveChanges();
+                }
                 return true;
             }
             return false;

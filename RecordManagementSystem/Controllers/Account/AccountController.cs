@@ -74,6 +74,7 @@ namespace RecordManagementSystem.Controllers.Account
             {
                 RegisterStudentAccountDTO register = new RegisterStudentAccountDTO
                 {
+                    Id = registerDto.Id,
                     Firtsname = registerDto.FirstName,
                     MiddleName = registerDto.MiddleName,
                     LastName = registerDto.LastName,
