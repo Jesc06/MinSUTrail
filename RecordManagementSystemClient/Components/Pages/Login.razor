@@ -1,16 +1,19 @@
 ﻿@page "/"
-@layout LoginLayout
 
+@inject NavigationManager Navigation
 
 <div class="card">
     <h1>Mindoro State University</h1>
     <img src="/images/MinsuLogo.png" />
     <input type="text" placeholder="Email"/>
     <input type="password" placeholder="Password" />
-    <button>Sign up</button>
+    <button type="submit" @onclick="Signup">Sign in</button>
 </div>
 
 
 @code {
-
+    void Signup()
+    {
+        Navigation.NavigateTo("/signup");
+    }
 }

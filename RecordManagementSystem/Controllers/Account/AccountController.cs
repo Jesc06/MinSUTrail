@@ -22,7 +22,7 @@ namespace RecordManagementSystem.Controllers.Account
 
 
         [HttpGet("{id}")]
-        public ActionResult<AddAccountDTO> GetUserId(int id)
+        public ActionResult GetUserId(int id)
         {
             var user = _services.GetStudentUserId(id);
             return Ok(user);
