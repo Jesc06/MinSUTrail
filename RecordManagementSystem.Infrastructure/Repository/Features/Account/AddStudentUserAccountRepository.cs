@@ -47,7 +47,7 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
                 StudentID = addStudentDTO.StudentID,
                 Password = addStudentDTO.Password
             };
-            await _context.AddAsync(addStudentAccount);
+            await _context.studentUserAccount.AddAsync(addStudentAccount);
             await _context.SaveChangesAsync();
 
             addStudentDTO.Id = addStudentAccount.Id;

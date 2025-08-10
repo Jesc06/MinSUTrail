@@ -26,7 +26,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
         public async Task<Result<AddStudentAccountDTO>> GetStudentUserId(int id)
         {
             var UserId = await _servicesData.GetStudentUserId(id);
-            if (UserId != null)
+            if (UserId is not null)
             {
                 return Result<AddStudentAccountDTO>.Ok(UserId);
             }

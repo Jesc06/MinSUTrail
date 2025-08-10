@@ -52,7 +52,7 @@ namespace RecordManagementSystem.Controllers.Account
                     Password = addAccountDTO.Password,
                 };
                 var UserId = await _services.AddStudentAccount(addAccount);
-
+  
                 return CreatedAtAction(nameof(GetUserId), new { id = UserId.Id }, UserId);
             }
             return BadRequest();

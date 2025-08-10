@@ -5,7 +5,11 @@ using Microsoft.AspNetCore.Identity;
 using RecordManagementSystem.Infrastructure.Repository.Features.Account;
 using RecordManagementSystem.Application.Features.Account.Service;
 using RecordManagementSystem.Infrastructure.Persistence.Seeder;
+using RecordManagementSystem.Infrastructure.Services;   
 using RecordManagementSystem.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +40,8 @@ builder.Services.AddIdentity<UserIdentity, IdentityRole>(option =>
 builder.Services.AddScoped<IAddStudentUserData, AddStudentUserAccountRepository>();
 builder.Services.AddScoped<AddStudentUserAccountServices>();
 
+builder.Services.AddScoped<IGenerateTokenService, GenerateTokenService>();
+
 
 builder.Services.AddCors(options =>
 {
@@ -48,7 +54,32 @@ builder.Services.AddCors(options =>
 });
 
 
+
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["key"]))
+        };
+    });
+
+
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {
