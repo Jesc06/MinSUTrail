@@ -100,8 +100,8 @@ namespace RecordManagementSystem.Controllers.Account
                 Email = loginDTO.Email,
                 Password = loginDTO.Password
             };
-            var a = await _services.Login(login);
-            return Ok(a);
+            var IsLogin = await _services.Login(login);
+            return Ok(IsLogin);
         }
 
 
