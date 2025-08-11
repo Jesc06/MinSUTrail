@@ -13,9 +13,11 @@ namespace RecordManagementSystem.Application.Features.Account.Service
     public class AddStudentUserAccountServices
     {
         private readonly IAddStudentUserData _servicesData;
-        public AddStudentUserAccountServices(IAddStudentUserData servicesData)
+        private readonly IGenerateTokenService _generateTokenService;
+        public AddStudentUserAccountServices(IGenerateTokenService generateTokenService,IAddStudentUserData servicesData)
         {
             _servicesData = servicesData;
+            _generateTokenService = generateTokenService;
         }
 
         public async Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO add)
@@ -48,7 +50,24 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return false;
         }
 
-    
+
+        public async Task<string> Login(LoginDTO loginDTO)
+        {
+            var isLogin = await _servicesData.Login(loginDTO);
+            if (isLogin)
+            {
+                return _generateTokenService.GenerateToken(loginDTO.Email, "Student");
+            }
+            throw new UnauthorizedAccessException("Invalid credentials!");
+        }
+
+
+        public async Task Logout()
+        {
+            await _servicesData.Logout();
+        }
+
+
 
     }
 }

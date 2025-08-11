@@ -10,5 +10,9 @@
 bin/
 obj/
 out/
+
+# Ignore appsettings for Web project
 /RecordManagementSystem/appsettings.json
+/RecordManagementSystem/appsettings.*.json
+
 

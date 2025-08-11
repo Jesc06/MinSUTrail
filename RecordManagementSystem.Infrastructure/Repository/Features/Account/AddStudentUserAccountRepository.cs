@@ -11,6 +11,7 @@ using RecordManagementSystem.Domain.Entities.Account;
 using RecordManagementSystem.Application.Common.Models;
 using RecordManagementSystem.Infrastructure.Persistence.Seeder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Azure;
 
@@ -18,13 +19,17 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
 {
     public class AddStudentUserAccountRepository : IAddStudentUserData 
     {
+
         private readonly ApplicationDbContext _context;
         private readonly UserManager<UserIdentity> _userManager;
+        private readonly SignInManager<UserIdentity> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AddStudentUserAccountRepository(RoleManager<IdentityRole> roleManager,ApplicationDbContext context, UserManager<UserIdentity> userManager)
+
+        public AddStudentUserAccountRepository(RoleManager<IdentityRole> roleManager,ApplicationDbContext context, SignInManager<UserIdentity> signInManager, UserManager<UserIdentity> userManager)
         {
             _context = context;
             _userManager = userManager;
+            _signInManager = signInManager;
             _roleManager = roleManager;
         }
 
@@ -54,6 +59,7 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             return addStudentDTO;
         }
 
+
         public async Task<AddStudentAccountDTO> GetStudentUserId(int id)
         {
             var UserId = _context.studentUserAccount.FirstOrDefault(Users => Users.Id == id);
@@ -82,6 +88,7 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             return UserData;
         }
 
+
         public async Task<IEnumerable<GetStudentAccountDTO>> GetAllStudentAccount()
         {
             return await _context.studentUserAccount.Select(Users => new GetStudentAccountDTO
@@ -103,6 +110,7 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
                 Password = Users.Password
             }).ToListAsync();
         }
+
 
         public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
@@ -127,6 +135,23 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
                 return true;
             }
             return false;
+        }
+
+
+        public async Task<bool> Login(LoginDTO loginDTO)
+        {
+            var IsLogin = await _signInManager.PasswordSignInAsync(loginDTO.Email, loginDTO.Password, true, true);
+            if (IsLogin.Succeeded)
+            {
+                return true;
+            }
+            return false;
+        }
+
+
+        public async Task Logout()
+        {
+            await _signInManager.SignOutAsync();
         }
 
 

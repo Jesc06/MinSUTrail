@@ -92,6 +92,27 @@ namespace RecordManagementSystem.Controllers.Account
         }
 
 
+        [HttpPost("Login")]
+        public async Task<ActionResult> Login(LoginApiDTO loginDTO)
+        {
+            LoginDTO login = new LoginDTO
+            {
+                Email = loginDTO.Email,
+                Password = loginDTO.Password
+            };
+            var a = await _services.Login(login);
+            return Ok(a);
+        }
+
+
+        [HttpPost("Logout")]
+        public async Task<ActionResult> Logout()
+        {
+            await _services.Logout();
+            return Ok();
+        }
+
+
 
     }
 }

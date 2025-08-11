@@ -22,10 +22,11 @@ namespace RecordManagementSystem.Infrastructure.Services
 
         public string GenerateToken(string username, string role)
         {
+
             var Claims = new[]
-            {
+     {
                 new Claim(JwtRegisteredClaimNames.Sub, username),
-                new Claim(ClaimTypes.Role, role),
+                new Claim("role", role), 
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
