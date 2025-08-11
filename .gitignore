@@ -10,5 +10,5 @@
 bin/
 obj/
 out/
-appsettings.json
+/RecordManagementSystem/appsettings.json
 
