@@ -10,5 +10,5 @@
 bin/
 obj/
 out/
-appsettings/
+appsettings.json
 
