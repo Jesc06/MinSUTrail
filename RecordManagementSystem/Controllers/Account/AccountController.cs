@@ -15,9 +15,11 @@ namespace RecordManagementSystem.Controllers.Account
     public class AccountController : ControllerBase
     {
         private readonly AddStudentUserAccountServices _services;
-        public AccountController(AddStudentUserAccountServices services)
+        private readonly AuthServices _authServices;
+        public AccountController(AddStudentUserAccountServices services, AuthServices authServices)
         {
             _services = services;
+            _authServices = authServices;
         }
 
 
@@ -81,7 +83,7 @@ namespace RecordManagementSystem.Controllers.Account
                     Email = registerDto.Email,
                     Password = registerDto.Password
                 };
-                var IsRegister = await _services.RegisterStudentAccount(register);
+                var IsRegister = await _authServices.RegisterStudentAccount(register);
                 if (IsRegister)
                 {
                     return Created();
@@ -100,7 +102,7 @@ namespace RecordManagementSystem.Controllers.Account
                 Email = loginDTO.Email,
                 Password = loginDTO.Password
             };
-            var IsLogin = await _services.Login(login);
+            var IsLogin = await _authServices.Login(login);
             return Ok(IsLogin);
         }
 
@@ -108,7 +110,7 @@ namespace RecordManagementSystem.Controllers.Account
         [HttpPost("Logout")]
         public async Task<ActionResult> Logout()
         {
-            await _services.Logout();
+            await _authServices.Logout();
             return Ok();
         }
 

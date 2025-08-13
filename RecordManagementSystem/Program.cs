@@ -40,7 +40,11 @@ builder.Services.AddIdentity<UserIdentity, IdentityRole>(option =>
 builder.Services.AddScoped<IAddStudentUserData, AddStudentUserAccountRepository>();
 builder.Services.AddScoped<AddStudentUserAccountServices>();
 
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<AuthServices>();
+
 builder.Services.AddScoped<IGenerateTokenService, GenerateTokenService>();
+
 
 
 builder.Services.AddCors(options =>

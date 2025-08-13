@@ -24,7 +24,7 @@ namespace RecordManagementSystem.Infrastructure.Services
         {
 
             var Claims = new[]
-     {
+            {
                 new Claim(JwtRegisteredClaimNames.Sub, username),
                 new Claim("role", role), 
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
