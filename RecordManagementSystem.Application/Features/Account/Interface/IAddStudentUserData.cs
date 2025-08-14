@@ -11,8 +11,8 @@ namespace RecordManagementSystem.Application.Features.Account.Interface
 {
     public interface IAddStudentUserData
     {
-        Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO add);
-        Task<AddStudentAccountDTO> GetStudentUserId(int Id);
+        Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO addAccountDTO);
+        Task<AddStudentAccountDTO> GetStudentUserId(int StudentUserId);
         Task<IEnumerable<GetStudentAccountDTO>> GetAllStudentAccount();
        
     }

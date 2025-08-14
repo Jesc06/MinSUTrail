@@ -58,52 +58,52 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
 
         public async Task<AddStudentAccountDTO> GetStudentUserId(int id)
         {
-            var UserId = _context.studentUserAccount.FirstOrDefault(Users => Users.Id == id);
+            var UserIdExistence = _context.studentUserAccount.FirstOrDefault(Users => Users.Id == id);
 
-            if (UserId == null) { return null; }
+            if (UserIdExistence is null) { return null; }
 
-            var UserData = new AddStudentAccountDTO
+            var studentAccountDTO = new AddStudentAccountDTO
             {
-                Id = UserId.Id,
-                FirstName = UserId.FirstName,
-                Middlename = UserId.Middlename,
-                LastName = UserId.LastName,
-                Gender = UserId.Gender,
-                YearOfBirth = UserId.YearOfBirth,   
-                MonthOfBirth = UserId.MonthOfBirth,
-                DateOfBirth = UserId.DateOfBirth,
-                HomeAddress = UserId.HomeAddress,
-                MobileNumber = UserId.MobileNumber,
-                Email = UserId.Email,
-                Program = UserId.Program,
-                YearLevel = UserId.YearLevel,   
-                StudentID = UserId.StudentID,
-                Password = UserId.Password,
+                Id = UserIdExistence.Id,
+                FirstName = UserIdExistence.FirstName,
+                Middlename = UserIdExistence.Middlename,
+                LastName = UserIdExistence.LastName,
+                Gender = UserIdExistence.Gender,
+                YearOfBirth = UserIdExistence.YearOfBirth,   
+                MonthOfBirth = UserIdExistence.MonthOfBirth,
+                DateOfBirth = UserIdExistence.DateOfBirth,
+                HomeAddress = UserIdExistence.HomeAddress,
+                MobileNumber = UserIdExistence.MobileNumber,
+                Email = UserIdExistence.Email,
+                Program = UserIdExistence.Program,
+                YearLevel = UserIdExistence.YearLevel,   
+                StudentID = UserIdExistence.StudentID,
+                Password = UserIdExistence.Password,
             };
 
-            return UserData;
+            return studentAccountDTO;
         }
 
 
         public async Task<IEnumerable<GetStudentAccountDTO>> GetAllStudentAccount()
         {
-            return await _context.studentUserAccount.Select(Users => new GetStudentAccountDTO
+            return await _context.studentUserAccount.Select(studentUserAccount => new GetStudentAccountDTO
             {
-                Id = Users.Id,
-                FirstName = Users.FirstName,
-                Middlename = Users.Middlename,
-                LastName = Users.LastName,
-                Gender = Users.Gender,
-                YearOfBirth = Users.YearOfBirth,
-                MonthOfBirth = Users.MonthOfBirth,
-                DateOfBirth = Users.DateOfBirth,
-                HomeAddress = Users.HomeAddress,
-                MobileNumber = Users.MobileNumber,
-                Email = Users.Email,
-                Program = Users.Program,
-                YearLevel = Users.YearLevel,
-                StudentID = Users.StudentID,
-                Password = Users.Password
+                Id = studentUserAccount.Id,
+                FirstName = studentUserAccount.FirstName,
+                Middlename = studentUserAccount.Middlename,
+                LastName = studentUserAccount.LastName,
+                Gender = studentUserAccount.Gender,
+                YearOfBirth = studentUserAccount.YearOfBirth,
+                MonthOfBirth = studentUserAccount.MonthOfBirth,
+                DateOfBirth = studentUserAccount.DateOfBirth,
+                HomeAddress = studentUserAccount.HomeAddress,
+                MobileNumber = studentUserAccount.MobileNumber,
+                Email = studentUserAccount.Email,
+                Program = studentUserAccount.Program,
+                YearLevel = studentUserAccount.YearLevel,
+                StudentID = studentUserAccount.StudentID,
+                Password = studentUserAccount.Password
             }).ToListAsync();
         }
 

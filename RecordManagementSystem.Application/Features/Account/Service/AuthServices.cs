@@ -19,8 +19,8 @@ namespace RecordManagementSystem.Application.Features.Account.Service
         }
         public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
-            var IsRegister = await _authService.RegisterStudentAccount(registerAccount);
-            if (IsRegister)
+            var isRegister = await _authService.RegisterStudentAccount(registerAccount);
+            if (isRegister)
             {
                 return true;
             }
@@ -36,7 +36,6 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             }
             throw new UnauthorizedAccessException("Invalid credentials!");
         }
-
 
         public async Task Logout()
         {

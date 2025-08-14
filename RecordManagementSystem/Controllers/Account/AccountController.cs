@@ -53,11 +53,11 @@ namespace RecordManagementSystem.Controllers.Account
                     StudentID = addAccountDTO.StudentID,
                     Password = addAccountDTO.Password,
                 };
-                var UserId = await _services.AddStudentAccount(addAccount);
+                var studentAccount = await _services.AddStudentAccount(addAccount);
   
-                return CreatedAtAction(nameof(GetUserId), new { id = UserId.Id }, UserId);
+                return CreatedAtAction(nameof(GetUserId), new { id = studentAccount.Id }, studentAccount);
             }
-            return BadRequest();
+            return BadRequest(ModelState.ValidationState);
         }
 
 
@@ -90,20 +90,24 @@ namespace RecordManagementSystem.Controllers.Account
                 }
                 return BadRequest();
             }
-            return BadRequest();    
+            return BadRequest(ModelState.ValidationState);    
         }
 
 
         [HttpPost("Login")]
         public async Task<ActionResult> Login(LoginApiDTO loginDTO)
         {
-            LoginDTO login = new LoginDTO
+            if (ModelState.IsValid)
             {
-                Email = loginDTO.Email,
-                Password = loginDTO.Password
-            };
-            var IsLogin = await _authServices.Login(login);
-            return Ok(IsLogin);
+                LoginDTO login = new LoginDTO
+                {
+                    Email = loginDTO.Email,
+                    Password = loginDTO.Password
+                };
+                var IsLogin = await _authServices.Login(login);
+                return Ok(IsLogin);
+            }
+            return BadRequest(ModelState.ValidationState);
         }
 
 

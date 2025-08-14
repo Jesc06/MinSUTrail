@@ -26,7 +26,7 @@ namespace RecordManagementSystem.Infrastructure.Services
 
         public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
-            UserIdentity userData = new UserIdentity
+            UserIdentity userDataIdentity = new UserIdentity
             {
                 FirstName = registerAccount.Firtsname,
                 MiddleName = registerAccount.MiddleName,
@@ -34,14 +34,14 @@ namespace RecordManagementSystem.Infrastructure.Services
                 Email = registerAccount.Email,
                 UserName = registerAccount.Email
             };
-            var register = await _userManager.CreateAsync(userData, registerAccount.Password);
-            if (register.Succeeded)
+            var isRegister = await _userManager.CreateAsync(userDataIdentity, registerAccount.Password);
+            if (isRegister.Succeeded)
             {
-                var roles = await _userManager.AddToRoleAsync(userData, "Student");
+                await _userManager.AddToRoleAsync(userDataIdentity, "Student");
                 var find = _context.studentUserAccount.Find(registerAccount.Id);
                 if (find is not null)
                 {
-                    var suc = _context.studentUserAccount.Remove(find);
+                    _context.studentUserAccount.Remove(find);
                     _context.SaveChanges();
                 }
                 return true;
