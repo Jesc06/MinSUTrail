@@ -58,27 +58,27 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
 
         public async Task<AddStudentAccountDTO> GetStudentUserId(int id)
         {
-            var UserIdExistence = _context.studentUserAccount.FirstOrDefault(Users => Users.Id == id);
+            var isUserIdExistence = _context.studentUserAccount.FirstOrDefault(Users => Users.Id == id);
 
-            if (UserIdExistence is null) { return null; }
+            if (isUserIdExistence is null) { return null; }
 
             var studentAccountDTO = new AddStudentAccountDTO
             {
-                Id = UserIdExistence.Id,
-                FirstName = UserIdExistence.FirstName,
-                Middlename = UserIdExistence.Middlename,
-                LastName = UserIdExistence.LastName,
-                Gender = UserIdExistence.Gender,
-                YearOfBirth = UserIdExistence.YearOfBirth,   
-                MonthOfBirth = UserIdExistence.MonthOfBirth,
-                DateOfBirth = UserIdExistence.DateOfBirth,
-                HomeAddress = UserIdExistence.HomeAddress,
-                MobileNumber = UserIdExistence.MobileNumber,
-                Email = UserIdExistence.Email,
-                Program = UserIdExistence.Program,
-                YearLevel = UserIdExistence.YearLevel,   
-                StudentID = UserIdExistence.StudentID,
-                Password = UserIdExistence.Password,
+                Id = isUserIdExistence.Id,
+                FirstName = isUserIdExistence.FirstName,
+                Middlename = isUserIdExistence.Middlename,
+                LastName = isUserIdExistence.LastName,
+                Gender = isUserIdExistence.Gender,
+                YearOfBirth = isUserIdExistence.YearOfBirth,   
+                MonthOfBirth = isUserIdExistence.MonthOfBirth,
+                DateOfBirth = isUserIdExistence.DateOfBirth,    
+                HomeAddress = isUserIdExistence.HomeAddress,
+                MobileNumber = isUserIdExistence.MobileNumber,
+                Email = isUserIdExistence.Email,
+                Program = isUserIdExistence.Program,
+                YearLevel = isUserIdExistence.YearLevel,   
+                StudentID = isUserIdExistence.StudentID,
+                Password = isUserIdExistence.Password,
             };
 
             return studentAccountDTO;

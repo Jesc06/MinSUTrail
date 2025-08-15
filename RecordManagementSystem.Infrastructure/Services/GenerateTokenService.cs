@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using RecordManagementSystem.Application.Features.Account.Interface;
+using RecordManagementSystem.Application.Features.Account.DTO;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -20,18 +21,18 @@ namespace RecordManagementSystem.Infrastructure.Services
             _config = config;
         }
 
-        public string GenerateToken(string username, string role)
+        public TokenResponseDTO GenerateToken(string username, string role)
         {
 
             var Claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, username),
-                new Claim("role", role), 
+                new Claim(ClaimTypes.Role, role), 
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:key"]));
-
+            var Expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
@@ -41,7 +42,15 @@ namespace RecordManagementSystem.Infrastructure.Services
                 expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
                 signingCredentials: creds
             );
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var Token = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return new TokenResponseDTO
+            {
+                Token = Token,  
+                ExpiresIn = (int) (Expiration - DateTime.UtcNow).TotalSeconds,
+                Role = role
+            };
+
         }
 
 

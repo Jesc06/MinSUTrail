@@ -27,7 +27,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return false;
         }
 
-        public async Task<string> Login(LoginDTO loginDTO)
+        public async Task<TokenResponseDTO> Login(LoginDTO loginDTO)
         {
             var isLogin = await _authService.Login(loginDTO);
             if (isLogin)
