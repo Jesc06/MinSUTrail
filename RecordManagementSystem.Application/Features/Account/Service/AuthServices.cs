@@ -1,4 +1,5 @@
-﻿using RecordManagementSystem.Application.Features.Account.DTO;
+﻿using Microsoft.AspNetCore.Http;
+using RecordManagementSystem.Application.Features.Account.DTO;
 using RecordManagementSystem.Application.Features.Account.Interface;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             _authService = authService;
             _generateTokenService = generateTokenService;
         }
+
         public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
             var isRegister = await _authService.RegisterStudentAccount(registerAccount);

@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RecordManagementSystem.DTO.Account;
 using RecordManagementSystem.Application.Features.Account.Service;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using RecordManagementSystem.Application.Features.Account.DTO;
+using RecordManagementSystem.DTOs.Account;
 using Azure.Identity;
 
 namespace RecordManagementSystem.Controllers.Account
@@ -20,6 +20,16 @@ namespace RecordManagementSystem.Controllers.Account
         {
             _services = services;
             _authServices = authServices;
+        }
+
+        [HttpGet("IsAuthenticated")]
+        public ActionResult<bool> IsAuthenticated()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return Ok(true);
+            }
+            return Ok(false);
         }
 
 
@@ -105,6 +115,17 @@ namespace RecordManagementSystem.Controllers.Account
                     Password = loginDTO.Password
                 };
                 var IsLogin = await _authServices.Login(login);
+
+                var cookies = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                };
+
+                Response.Cookies.Append("Jwt", IsLogin.Token, cookies);
+
                 return Ok(IsLogin);
             }
             return BadRequest(ModelState.ValidationState);
