@@ -34,7 +34,8 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             var isLogin = await _authService.Login(loginDTO);
             if (isLogin)
             {
-                return _generateTokenService.GenerateToken(loginDTO.Email, "Student");
+                var token = _generateTokenService.GenerateToken(loginDTO.Email, "Student");
+                return token;
             }
             throw new UnauthorizedAccessException("Invalid credentials!");
         }

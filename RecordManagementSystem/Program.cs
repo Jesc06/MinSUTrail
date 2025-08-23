@@ -10,6 +10,8 @@ using RecordManagementSystem.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,12 +53,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins("https://localhost:7253")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
+     
 });
-
 
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -68,32 +71,34 @@ builder.Services.AddAuthentication(options =>
 })
     .AddJwtBearer(options =>
     {
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var token = context.Request.Cookies["Jwt"];
-                if (!string.IsNullOrEmpty(token))
-                {
-                    context.Token = token;
-                }
-                return Task.CompletedTask;
-            }
-        };
-
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["key"]))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context => 
+            {
+                if (context.Request.Cookies.ContainsKey("Jwt"))
+                {
+                    context.Token = context.Request.Cookies["Jwt"];
+                }
+                return Task.CompletedTask;
+            }
+        };
+
+
     });
 
+   
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -125,7 +130,6 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserIdentity>>();
     await RoleSeeder.Roles(roleManager, userManager);
 }
-
 
 
 app.Run();

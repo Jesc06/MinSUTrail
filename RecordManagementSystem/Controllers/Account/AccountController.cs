@@ -7,6 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using RecordManagementSystem.Application.Features.Account.DTO;
 using RecordManagementSystem.DTOs.Account;
 using Azure.Identity;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+
 
 namespace RecordManagementSystem.Controllers.Account
 {
@@ -14,29 +19,19 @@ namespace RecordManagementSystem.Controllers.Account
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly AddStudentUserAccountServices _services;
+        private readonly AddStudentUserAccountServices _AddStudentAccountservices;
         private readonly AuthServices _authServices;
-        public AccountController(AddStudentUserAccountServices services, AuthServices authServices)
+        public AccountController(AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices)
         {
-            _services = services;
+            _AddStudentAccountservices = AddStudentAccountservices;
             _authServices = authServices;
-        }
-
-        [HttpGet("IsAuthenticated")]
-        public ActionResult<bool> IsAuthenticated()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                return Ok(true);
-            }
-            return Ok(false);
         }
 
 
         [HttpGet("{id}")]
         public ActionResult GetUserId(int id)
         {
-            var user = _services.GetStudentUserId(id);
+            var user = _AddStudentAccountservices.GetStudentUserId(id);
             return Ok(user);
         }
 
@@ -63,7 +58,7 @@ namespace RecordManagementSystem.Controllers.Account
                     StudentID = addAccountDTO.StudentID,
                     Password = addAccountDTO.Password,
                 };
-                var studentAccount = await _services.AddStudentAccount(addAccount);
+                var studentAccount = await _AddStudentAccountservices.AddStudentAccount(addAccount);
   
                 return CreatedAtAction(nameof(GetUserId), new { id = studentAccount.Id }, studentAccount);
             }
@@ -74,7 +69,7 @@ namespace RecordManagementSystem.Controllers.Account
         [HttpGet("GetAllStudentAccount")]
         public async Task<ActionResult> GetAllStudentAccount()
         {
-            var GetAllAccounts = await _services.GetAllStudentAccounts();
+            var GetAllAccounts = await _AddStudentAccountservices.GetAllStudentAccounts();
             return Ok(GetAllAccounts);
         }
 
@@ -116,16 +111,6 @@ namespace RecordManagementSystem.Controllers.Account
                 };
                 var IsLogin = await _authServices.Login(login);
 
-                var cookies = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTimeOffset.UtcNow.AddDays(7)
-                };
-
-                Response.Cookies.Append("Jwt", IsLogin.Token, cookies);
-
                 return Ok(IsLogin);
             }
             return BadRequest(ModelState.ValidationState);
@@ -135,8 +120,9 @@ namespace RecordManagementSystem.Controllers.Account
         [HttpPost("Logout")]
         public async Task<ActionResult> Logout()
         {
+            Response.Cookies.Delete("Jwt");
             await _authServices.Logout();
-            return Ok();
+            return Ok(new { message= "Logged out!" });
         }
 
 
