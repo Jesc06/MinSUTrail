@@ -13,6 +13,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore.Internal;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -42,6 +43,8 @@ builder.Services.AddIdentity<UserIdentity, IdentityRole>(option =>
 builder.Services.AddScoped<IAddStudentUserData, AddStudentUserAccountRepository>();
 builder.Services.AddScoped<AddStudentUserAccountServices>();
 
+builder.Services.AddScoped<IRefreshToken,RefreshTokenService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<AuthServices>();
 
@@ -53,7 +56,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("https://localhost:7253")
+        policy.WithOrigins("http://localhost:5150")
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();
@@ -81,19 +84,6 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["key"]))
         };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context => 
-            {
-                if (context.Request.Cookies.ContainsKey("Jwt"))
-                {
-                    context.Token = context.Request.Cookies["Jwt"];
-                }
-                return Task.CompletedTask;
-            }
-        };
-
 
     });
 

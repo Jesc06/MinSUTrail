@@ -23,7 +23,6 @@ namespace RecordManagementSystem.Infrastructure.Services
             _context = context;
         }
 
-
         public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
         {
             UserIdentity userDataIdentity = new UserIdentity

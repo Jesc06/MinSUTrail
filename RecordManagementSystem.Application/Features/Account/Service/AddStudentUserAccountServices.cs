@@ -23,21 +23,10 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return await _servicesData.AddStudentAccount(addAccountDTO);
         }
 
-        public async Task<Result<AddStudentAccountDTO>> GetStudentUserId(int UserId)
-        {
-            var StudentUserId = await _servicesData.GetStudentUserId(UserId);
-            if (StudentUserId is not null)
-            {
-                return Result<AddStudentAccountDTO>.Ok(StudentUserId);
-            }
-            return Result<AddStudentAccountDTO>.Fail("Not found!");
-        }
-
         public async Task<IEnumerable<GetStudentAccountDTO>> GetAllStudentAccounts()
         {
             return await _servicesData.GetAllStudentAccount();
         }
-
 
 
     }

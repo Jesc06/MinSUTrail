@@ -17,27 +17,19 @@ namespace RecordManagementSystem.Controllers.Account
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class LoginRegisterController : ControllerBase
     {
         private readonly AddStudentUserAccountServices _AddStudentAccountservices;
         private readonly AuthServices _authServices;
-        public AccountController(AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices)
+        public LoginRegisterController(AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices)
         {
             _AddStudentAccountservices = AddStudentAccountservices;
             _authServices = authServices;
         }
 
 
-        [HttpGet("{id}")]
-        public ActionResult GetUserId(int id)
-        {
-            var user = _AddStudentAccountservices.GetStudentUserId(id);
-            return Ok(user);
-        }
-
-
         [HttpPost("AddStudentAccount")]
-        public async Task<ActionResult> AddStudentAccount([FromBody]AddAccountDTO addAccountDTO) 
+        public async Task<ActionResult> AddStudentAccount([FromBody] AddAccountDTO addAccountDTO)
         {
             if (ModelState.IsValid)
             {
@@ -50,7 +42,7 @@ namespace RecordManagementSystem.Controllers.Account
                     YearOfBirth = addAccountDTO.YearOfBirth,
                     MonthOfBirth = addAccountDTO.MonthOfBirth,
                     DateOfBirth = addAccountDTO.DateOfBirth,
-                    HomeAddress = addAccountDTO.HomeAddress,
+                    HomeAddress = addAccountDTO.HomeAddress, 
                     MobileNumber = addAccountDTO.MobileNumber,
                     Email = addAccountDTO.Email,
                     Program = addAccountDTO.Program,
@@ -59,18 +51,10 @@ namespace RecordManagementSystem.Controllers.Account
                     Password = addAccountDTO.Password,
                 };
                 var studentAccount = await _AddStudentAccountservices.AddStudentAccount(addAccount);
-  
-                return CreatedAtAction(nameof(GetUserId), new { id = studentAccount.Id }, studentAccount);
+
+                return Created();
             }
             return BadRequest(ModelState.ValidationState);
-        }
-
-
-        [HttpGet("GetAllStudentAccount")]
-        public async Task<ActionResult> GetAllStudentAccount()
-        {
-            var GetAllAccounts = await _AddStudentAccountservices.GetAllStudentAccounts();
-            return Ok(GetAllAccounts);
         }
 
 
@@ -120,7 +104,6 @@ namespace RecordManagementSystem.Controllers.Account
         [HttpPost("Logout")]
         public async Task<ActionResult> Logout()
         {
-            Response.Cookies.Delete("Jwt");
             await _authServices.Logout();
             return Ok(new { message= "Logged out!" });
         }

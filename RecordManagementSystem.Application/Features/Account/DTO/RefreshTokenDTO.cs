@@ -6,15 +6,8 @@ using System.Threading.Tasks;
 
 namespace RecordManagementSystem.Application.Features.Account.DTO
 {
-    public class TokenResponseDTO
+    public class RefreshTokenDTO
     {
-        public string Token { get; set; }
-        public int ExpiresIn { get; set; }
-        public string Role { get; set; }
-
-        //Refresh Token
         public string RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiry { get; set; }
-
     }
 }

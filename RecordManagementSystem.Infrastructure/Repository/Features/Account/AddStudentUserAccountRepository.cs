@@ -21,12 +21,9 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
     {
 
         private readonly ApplicationDbContext _context;
-        private readonly RoleManager<IdentityRole> _roleManager;
-
-        public AddStudentUserAccountRepository(RoleManager<IdentityRole> roleManager,ApplicationDbContext context)
+        public AddStudentUserAccountRepository(ApplicationDbContext context)
         {
             _context = context;
-            _roleManager = roleManager;
         }
 
         public async Task<AddStudentAccountDTO> AddStudentAccount(AddStudentAccountDTO addStudentDTO)
@@ -53,35 +50,6 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
 
             addStudentDTO.Id = addStudentAccount.Id;
             return addStudentDTO;
-        }
-
-
-        public async Task<AddStudentAccountDTO> GetStudentUserId(int id)
-        {
-            var isUserIdExistence = _context.studentUserAccount.FirstOrDefault(Users => Users.Id == id);
-
-            if (isUserIdExistence is null) { return null; }
-
-            var studentAccountDTO = new AddStudentAccountDTO
-            {
-                Id = isUserIdExistence.Id,
-                FirstName = isUserIdExistence.FirstName,
-                Middlename = isUserIdExistence.Middlename,
-                LastName = isUserIdExistence.LastName,
-                Gender = isUserIdExistence.Gender,
-                YearOfBirth = isUserIdExistence.YearOfBirth,   
-                MonthOfBirth = isUserIdExistence.MonthOfBirth,
-                DateOfBirth = isUserIdExistence.DateOfBirth,    
-                HomeAddress = isUserIdExistence.HomeAddress,
-                MobileNumber = isUserIdExistence.MobileNumber,
-                Email = isUserIdExistence.Email,
-                Program = isUserIdExistence.Program,
-                YearLevel = isUserIdExistence.YearLevel,   
-                StudentID = isUserIdExistence.StudentID,
-                Password = isUserIdExistence.Password,
-            };
-
-            return studentAccountDTO;
         }
 
 

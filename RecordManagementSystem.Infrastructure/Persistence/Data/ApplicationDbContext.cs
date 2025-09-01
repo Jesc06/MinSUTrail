@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using RecordManagementSystem.Domain;
 using RecordManagementSystem.Domain.Entities.Account;
+using RecordManagementSystem.Domain.Entities.Token;
 
 namespace RecordManagementSystem.Infrastructure.Persistence.Data
 {
@@ -14,5 +15,6 @@ namespace RecordManagementSystem.Infrastructure.Persistence.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
         public DbSet<StudentUserAccount> studentUserAccount { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

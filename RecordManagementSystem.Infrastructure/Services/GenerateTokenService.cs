@@ -9,6 +9,7 @@ using RecordManagementSystem.Application.Features.Account.Interface;
 using RecordManagementSystem.Application.Features.Account.DTO;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 
 
 namespace RecordManagementSystem.Infrastructure.Services
@@ -23,7 +24,6 @@ namespace RecordManagementSystem.Infrastructure.Services
 
         public TokenResponseDTO GenerateToken(string username, string role)
         {
-
             var Claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, username),
@@ -44,13 +44,30 @@ namespace RecordManagementSystem.Infrastructure.Services
             );
             var Token = new JwtSecurityTokenHandler().WriteToken(token);
 
+            //Refresh token method
+            var refreshToken = GenerateRefreshToken();
+            var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
             return new TokenResponseDTO
             {
                 Token = Token,  
                 ExpiresIn = (int) (Expiration - DateTime.UtcNow).TotalSeconds,
-                Role = role
+                Role = role,
+
+                RefreshToken = refreshToken,
+                RefreshTokenExpiry = refreshTokenExpiry
             };
 
+        }
+
+        private string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[64];
+            using (var range = RandomNumberGenerator.Create())
+            {
+                range.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
         }
 
 
