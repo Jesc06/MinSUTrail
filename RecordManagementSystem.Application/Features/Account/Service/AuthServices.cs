@@ -72,6 +72,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
 
         }
 
+
         public async Task Logout()
         {
             await _authService.Logout();

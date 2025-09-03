@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using RecordManagementSystem.Infrastructure.Services;
 
 
 namespace RecordManagementSystem.Controllers.Account
@@ -20,11 +21,15 @@ namespace RecordManagementSystem.Controllers.Account
     public class LoginRegisterController : ControllerBase
     {
         private readonly AddStudentUserAccountServices _AddStudentAccountservices;
+        private readonly RefreshTokenServiceApp _refreshTokenServiceApp;
+        private readonly GenerateToken _generateToken;
         private readonly AuthServices _authServices;
-        public LoginRegisterController(AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices)
+        public LoginRegisterController(AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices, RefreshTokenServiceApp refreshTokenServiceApp, GenerateToken generateToken)
         {
             _AddStudentAccountservices = AddStudentAccountservices;
             _authServices = authServices;
+            _refreshTokenServiceApp = refreshTokenServiceApp;
+            _generateToken = generateToken;
         }
 
 
@@ -100,6 +105,24 @@ namespace RecordManagementSystem.Controllers.Account
             return BadRequest(ModelState.ValidationState);
         }
 
+        [HttpPost("Refresh Token")]
+        public async Task<ActionResult> RefreshToken([FromBody] JwtRefreshTokenDTO request)
+        {
+            var savedToken = await _refreshTokenServiceApp.GetByTokenAsync(request.RefreshToken);
+            if(savedToken == null || savedToken.ExpiryDate < DateTime.UtcNow || savedToken.IsRevoked)
+            {
+                return Unauthorized();
+            }
+
+            var newTokens = _generateToken.Token(savedToken.Username, savedToken.role);
+            savedToken.Token = newTokens.RefreshToken;
+            savedToken.ExpiryDate = newTokens.RefreshTokenExpiry;
+            await _refreshTokenServiceApp.UpdateAsync(savedToken);
+
+            return Ok(newTokens);
+
+        }
+        
 
         [HttpPost("Logout")]
         public async Task<ActionResult> Logout()
