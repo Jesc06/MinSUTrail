@@ -13,6 +13,5 @@ namespace RecordManagementSystem.Domain.Entities.Token
         public string Token { get; set; }
         public DateTime ExpiryDate { get; set; }
         public bool IsRevoked { get; set; }
-        public string role { get; set; }
     }
 }
