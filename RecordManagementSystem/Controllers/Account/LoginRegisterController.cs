@@ -12,6 +12,10 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using RecordManagementSystem.Infrastructure.Services;
+using RecordManagementSystem.Application.Features.OTP.Services;
+using RecordManagementSystem.DTOs.OTP;
+using RecordManagementSystem.Application.Features.OTP.Interfaces;
+using System.Runtime.CompilerServices;
 
 
 namespace RecordManagementSystem.Controllers.Account
@@ -24,18 +28,26 @@ namespace RecordManagementSystem.Controllers.Account
         private readonly RefreshTokenServiceApp _refreshTokenServiceApp;
         private readonly GenerateToken _generateToken;
         private readonly AuthServices _authServices;
-        public LoginRegisterController(AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices, RefreshTokenServiceApp refreshTokenServiceApp, GenerateToken generateToken)
+        private readonly IEmailService _emailService;
+        private static AddStudentAccountDTO add;
+
+        private static Random generateOTP = new Random();
+        private static int generated;
+
+        public LoginRegisterController(IEmailService emailService, AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices, RefreshTokenServiceApp refreshTokenServiceApp, GenerateToken generateToken)
         {
             _AddStudentAccountservices = AddStudentAccountservices;
             _authServices = authServices;
             _refreshTokenServiceApp = refreshTokenServiceApp;
             _generateToken = generateToken;
+            _emailService = emailService;
         }
 
 
         [HttpPost("AddStudentAccount")]
         public async Task<ActionResult> AddStudentAccount([FromBody] AddAccountDTO addAccountDTO)
         {
+
             if (ModelState.IsValid)
             {
                 AddStudentAccountDTO addAccount = new AddStudentAccountDTO
@@ -47,7 +59,7 @@ namespace RecordManagementSystem.Controllers.Account
                     YearOfBirth = addAccountDTO.YearOfBirth,
                     MonthOfBirth = addAccountDTO.MonthOfBirth,
                     DateOfBirth = addAccountDTO.DateOfBirth,
-                    HomeAddress = addAccountDTO.HomeAddress, 
+                    HomeAddress = addAccountDTO.HomeAddress,
                     MobileNumber = addAccountDTO.MobileNumber,
                     Email = addAccountDTO.Email,
                     Program = addAccountDTO.Program,
@@ -55,12 +67,27 @@ namespace RecordManagementSystem.Controllers.Account
                     StudentID = addAccountDTO.StudentID,
                     Password = addAccountDTO.Password,
                 };
-                var studentAccount = await _AddStudentAccountservices.AddStudentAccount(addAccount);
+                add = addAccount;
+            }
+            generated = generateOTP.Next();
+            await _emailService.SendEmailAsync(addAccountDTO.Email, "Minsu", generated);
+            return Ok();
 
+        }
+
+
+
+        [HttpPost("OTP")]
+        public async Task<ActionResult> OTPRequest(EmailRequestDTO req)
+        {
+            if(generated == req.OTP)
+            {
+                var studentAccount = await _AddStudentAccountservices.AddStudentAccount(add);
                 return Created();
             }
-            return BadRequest(ModelState.ValidationState);
+            return BadRequest();
         }
+
 
 
         [HttpPost("RegisterStudentAccount")]
@@ -71,11 +98,11 @@ namespace RecordManagementSystem.Controllers.Account
                 RegisterStudentAccountDTO register = new RegisterStudentAccountDTO
                 {
                     Id = registerDto.Id,
-                    Firtsname = registerDto.FirstName,
-                    MiddleName = registerDto.MiddleName,
+                    FirstName = registerDto.FirstName,
+                    MiddleName = registerDto.Middlename,
                     LastName = registerDto.LastName,
                     Email = registerDto.Email,
-                    Password = registerDto.Password
+                    Password = registerDto.Password,    
                 };
                 var IsRegister = await _authServices.RegisterStudentAccount(register);
                 if (IsRegister)
@@ -86,6 +113,7 @@ namespace RecordManagementSystem.Controllers.Account
             }
             return BadRequest(ModelState.ValidationState);    
         }
+
 
 
         [HttpPost("Login")]
@@ -104,6 +132,7 @@ namespace RecordManagementSystem.Controllers.Account
             }
             return BadRequest(ModelState.ValidationState);
         }
+
 
         [HttpPost("Refresh Token")]
         public async Task<ActionResult> RefreshToken([FromBody] JwtRefreshTokenDTO request)

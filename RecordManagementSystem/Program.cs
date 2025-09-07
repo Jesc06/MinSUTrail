@@ -12,6 +12,10 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore.Internal;
+using RecordManagementSystem.Application.Features.OTP.DTO;
+using RecordManagementSystem.Application.Features.OTP.Interfaces;
+using RecordManagementSystem.Application.Features.OTP.Services;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +56,12 @@ builder.Services.AddScoped<AuthServices>();
 builder.Services.AddScoped<IGenerateTokenService, GenerateTokenService>();
 builder.Services.AddScoped<GenerateToken>();
 
+
+//Email Service
+builder.Services.Configure<EmailSettingsDTO>(
+    builder.Configuration.GetSection("EmailSettings")
+);
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 builder.Services.AddCors(options =>

@@ -27,7 +27,7 @@ namespace RecordManagementSystem.Infrastructure.Services
         {
             UserIdentity userDataIdentity = new UserIdentity
             {
-                FirstName = registerAccount.Firtsname,
+                FirstName = registerAccount.FirstName,
                 MiddleName = registerAccount.MiddleName,
                 LastName = registerAccount.LastName,
                 Email = registerAccount.Email,

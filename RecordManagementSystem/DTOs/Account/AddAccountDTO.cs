@@ -59,5 +59,6 @@ namespace RecordManagementSystem.DTOs.Account
 
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; }
+
     }
 }
