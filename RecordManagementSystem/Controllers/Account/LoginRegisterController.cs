@@ -16,6 +16,7 @@ using RecordManagementSystem.Application.Features.OTP.Services;
 using RecordManagementSystem.DTOs.OTP;
 using RecordManagementSystem.Application.Features.OTP.Interfaces;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Caching.Memory;
 
 
 namespace RecordManagementSystem.Controllers.Account
@@ -29,18 +30,18 @@ namespace RecordManagementSystem.Controllers.Account
         private readonly GenerateToken _generateToken;
         private readonly AuthServices _authServices;
         private readonly IEmailService _emailService;
-        private static AddStudentAccountDTO add;
-
+        private readonly IMemoryCache _cache;
         private static Random generateOTP = new Random();
-        private static int generated;
+    
 
-        public LoginRegisterController(IEmailService emailService, AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices, RefreshTokenServiceApp refreshTokenServiceApp, GenerateToken generateToken)
+        public LoginRegisterController(IMemoryCache cache,IEmailService emailService, AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices, RefreshTokenServiceApp refreshTokenServiceApp, GenerateToken generateToken)
         {
             _AddStudentAccountservices = AddStudentAccountservices;
             _authServices = authServices;
             _refreshTokenServiceApp = refreshTokenServiceApp;
             _generateToken = generateToken;
             _emailService = emailService;
+            _cache = cache;
         }
 
 
@@ -48,9 +49,15 @@ namespace RecordManagementSystem.Controllers.Account
         public async Task<ActionResult> AddStudentAccount([FromBody] AddAccountDTO addAccountDTO)
         {
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            //Generate OTP
+            var otp = generateOTP.Next();
+
+            var pending = new PendingOTPRequest
             {
-                AddStudentAccountDTO addAccount = new AddStudentAccountDTO
+                account = new AddStudentAccountDTO
                 {
                     FirstName = addAccountDTO.FirstName,
                     Middlename = addAccountDTO.Middlename,
@@ -66,26 +73,46 @@ namespace RecordManagementSystem.Controllers.Account
                     YearLevel = addAccountDTO.YearLevel,
                     StudentID = addAccountDTO.StudentID,
                     Password = addAccountDTO.Password,
-                };
-                add = addAccount;
-            }
-            generated = generateOTP.Next();
-            await _emailService.SendEmailAsync(addAccountDTO.Email, "Minsu", generated);
-            return Ok();
+                },
+                OTP = otp
+            };
 
+            //OTP expiration
+            var sessionID = Guid.NewGuid().ToString();
+            _cache.Set(sessionID, pending,
+                 new MemoryCacheEntryOptions
+                 {
+                     AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60)
+                 }    
+            );
+
+            Response.Cookies.Append("OTPniJosh", sessionID);
+
+            await _emailService.SendEmailAsync(addAccountDTO.Email, "Minsu", otp);
+            return Ok(new {message = $"OTP successfully sent in {addAccountDTO.Email}"});
         }
 
 
 
-        [HttpPost("OTP")]
+        [HttpPost("VerifyOTP")]
         public async Task<ActionResult> OTPRequest(EmailRequestDTO req)
         {
-            if(generated == req.OTP)
+            
+            var sessionID = Request.Cookies["OTPniJosh"];
+            if (string.IsNullOrWhiteSpace(sessionID))
+                return BadRequest("No session found!");
+
+            if(_cache.TryGetValue<PendingOTPRequest>(sessionID, out var pending))
             {
-                var studentAccount = await _AddStudentAccountservices.AddStudentAccount(add);
-                return Created();
+                if (pending.OTP == req.OTP)
+                {
+                    await _AddStudentAccountservices.AddStudentAccount(pending.account);
+                    _cache.Remove(sessionID);
+                    return Created();
+                }
+                return BadRequest("Invalid OTP");
             }
-            return BadRequest();
+            return BadRequest("OTP is expired");
         }
 
 
