@@ -43,7 +43,7 @@ namespace RecordManagementSystem.Controllers.Account
 
 
         [HttpPost("AddStudentAccount")]
-        public async Task<ActionResult> AddStudentAccount([FromBody] OTPRequestDTO  addAccountDTO)
+        public async Task<ActionResult> AddStudentAccount([FromBody] OTPRequestDTOs  addAccountDTO)
         {
 
             if (!ModelState.IsValid)
