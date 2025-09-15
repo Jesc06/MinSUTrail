@@ -25,7 +25,7 @@ namespace RecordManagementSystem.Application.Features.OTP.Services
             email.From.Add(new MailboxAddress("MinSUTrails", _settings.SmtpUser));
             email.To.Add(new MailboxAddress("", toEmail));
             email.Subject = subject;
-            email.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = message.ToString() };
+            email.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = message.ToString()};
 
             using var smtp = new SmtpClient();
             await smtp.ConnectAsync(_settings.SmtpServer, _settings.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);

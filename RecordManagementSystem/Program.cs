@@ -17,7 +17,6 @@ using RecordManagementSystem.Application.Features.OTP.Interfaces;
 using RecordManagementSystem.Application.Features.OTP.Services;
 
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -57,6 +56,9 @@ builder.Services.AddScoped<AuthServices>();
 builder.Services.AddScoped<IGenerateTokenService, GenerateTokenService>();
 builder.Services.AddScoped<GenerateToken>();
 
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+
 
 //Email Service
 builder.Services.Configure<EmailSettingsDTO>(
@@ -69,7 +71,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:5150")
+        policy.WithOrigins("https://localhost:7007")
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();
@@ -114,9 +116,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowAll");
 app.MapControllers();
 
 
