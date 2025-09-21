@@ -7,7 +7,6 @@ namespace RecordManagementSystem.Controllers.Account
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
     public class AdminGetAllStudentAccountController : ControllerBase
     {
         private readonly AddStudentUserAccountServices _AddStudentAccountservices;
@@ -16,6 +15,8 @@ namespace RecordManagementSystem.Controllers.Account
             _AddStudentAccountservices = addStudentUserAccountServices;
         }
 
+
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetAllStudentAccount")]
         public async Task<ActionResult> GetAllStudentAccount()
         {

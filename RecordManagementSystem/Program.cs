@@ -20,13 +20,7 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers()
-      .AddJsonOptions(options =>
-      {
-          options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-      });
-
-
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -103,8 +97,10 @@ builder.Services.AddAuthentication(options =>
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["key"])),
+            RoleClaimType = ClaimTypes.Role,
 
-            RoleClaimType = ClaimTypes.Role
+            ClockSkew = TimeSpan.Zero // remove 5 minutes grace
+            //kase kahit 1 minute na yung JWT token automatic may palugit na additional 5 minutes or 6 minutes bago tuluyan mawala
         };
 
     });

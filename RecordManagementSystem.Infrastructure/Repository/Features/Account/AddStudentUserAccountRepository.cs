@@ -18,6 +18,7 @@ using Azure;
 using RecordManagementSystem.Application.Features.OTP.Services;
 using RecordManagementSystem.Application.Features.OTP.DTO;
 using RecordManagementSystem.Application.Features.OTP.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
 {

@@ -31,6 +31,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return await _servicesData.VerifyOTP(verify);
         }
 
+
         public async Task<IEnumerable<GetStudentAccountDTO>> GetAllStudentAccounts()
         {
             return await _servicesData.GetAllStudentAccount();
