@@ -31,7 +31,7 @@ namespace RecordManagementSystem.Controllers.Account
         private readonly AuthServices _authServices;
         private readonly IEmailService _emailService;
 
-    
+        
         public LoginRegisterController(IEmailService emailService, AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices, RefreshTokenServiceApp refreshTokenServiceApp, GenerateToken generateToken)
         {
             _AddStudentAccountservices = AddStudentAccountservices;
@@ -43,7 +43,7 @@ namespace RecordManagementSystem.Controllers.Account
 
 
         [HttpPost("AddStudentAccount")]
-        public async Task<ActionResult> AddStudentAccount([FromBody] OTPRequestDTOs  addAccountDTO)
+        public async Task<ActionResult> AddStudentAccount([FromBody] OTPRequestApiDTOs  addAccountDTO)
         {
 
             if (!ModelState.IsValid)
@@ -117,7 +117,6 @@ namespace RecordManagementSystem.Controllers.Account
             }
             return BadRequest(ModelState.ValidationState);    
         }
-
 
 
         [HttpPost("Login")]

@@ -37,7 +37,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             var isLogin = await _authService.Login(loginDTO);
             if (isLogin)
             {
-                var token = _generateTokenService.GenerateToken(loginDTO.Email, "Student");
+                var token = _generateTokenService.GenerateToken(loginDTO.Email, "Admin");
 
                 var refreshToken = new RefreshToken
                 {
@@ -62,7 +62,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
                 throw new UnauthorizedAccessException("Invalid or expired refresh token");
             }
 
-            var newTokens = _generateTokenService.GenerateToken(savedToken.Username, "Student");
+            var newTokens = _generateTokenService.GenerateToken(savedToken.Username, "Admin");
 
             savedToken.Token = newTokens.RefreshToken;
             savedToken.ExpiryDate = newTokens.RefreshTokenExpiry;

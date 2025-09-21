@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RecordManagementSystem.Infrastructure.Persistence.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace RecordManagementSystem.Infrastructure.Persistence.Seeder
 {
     public class RoleSeeder
     {
-        public static async Task Roles(RoleManager<IdentityRole> roleManager, UserManager<UserIdentity> userManager)
+        public static async Task Roles(RoleManager<IdentityRole> roleManager, UserManager<UserIdentity> userManager, IConfiguration configuration)
         {
             string[] roles = { "Admin", "Student" };
 
@@ -20,17 +21,18 @@ namespace RecordManagementSystem.Infrastructure.Persistence.Seeder
                     await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            var adminEmail = "admin@gmail.com";
-            var adminPassword = "Admin@Torech_a&93";
+            var AppSettingsAdminSeeded = configuration.GetSection("AdminSeededAccount");
+            var adminEmail = AppSettingsAdminSeeded["Email"];
+            var adminPassword = AppSettingsAdminSeeded["Password"];
 
             var findUser = await userManager.FindByEmailAsync(adminEmail);
             if(findUser == null)
             {
                 var createUser = new UserIdentity
                 {
-                    FirstName = "Admin",
-                    MiddleName = "Faculty",
-                    LastName = "Minsu",
+                    FirstName = AppSettingsAdminSeeded["FirstName"],
+                    MiddleName = AppSettingsAdminSeeded["MiddleName"],
+                    LastName = AppSettingsAdminSeeded["LastName"],
                     UserName = adminEmail,
                     Email = adminEmail,
                 };

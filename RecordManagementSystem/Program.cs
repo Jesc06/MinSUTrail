@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using RecordManagementSystem.Application.Features.OTP.DTO;
 using RecordManagementSystem.Application.Features.OTP.Interfaces;
 using RecordManagementSystem.Application.Features.OTP.Services;
+using System.Security.Claims;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -101,7 +102,9 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["key"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["key"])),
+
+            RoleClaimType = ClaimTypes.Role
         };
 
     });
@@ -137,7 +140,9 @@ using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserIdentity>>();
-    await RoleSeeder.Roles(roleManager, userManager);
+    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+    await RoleSeeder.Roles(roleManager, userManager,configuration);
 }
 
 

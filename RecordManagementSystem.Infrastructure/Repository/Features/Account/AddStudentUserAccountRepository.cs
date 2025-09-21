@@ -41,7 +41,6 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
 
             var addStudentAccount = new OTPRequest
             {
-
                 SessionID = sessionId.ToString(),
                 OTP = otp,
                 Email = addStudentDTO.Email,
@@ -77,7 +76,7 @@ namespace RecordManagementSystem.Infrastructure.Repository.Features.Account
             if (OTPentry == null)
                 return false;
 
-            if((DateTime.UtcNow - OTPentry.ExpiryTime).TotalMinutes > 5)
+            if((DateTime.UtcNow - OTPentry.ExpiryTime).TotalSeconds > 40)
             {
                 _context.OTPRequests.Remove(OTPentry);
                 await _context.SaveChangesAsync();

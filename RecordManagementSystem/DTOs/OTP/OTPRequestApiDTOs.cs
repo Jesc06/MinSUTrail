@@ -1,6 +1,6 @@
 ﻿namespace RecordManagementSystem.DTOs.OTP
 {
-    public class OTPRequestDTOs
+    public class OTPRequestApiDTOs
     {
         public string FirstName { get; set; }
         public string Middlename { get; set; }

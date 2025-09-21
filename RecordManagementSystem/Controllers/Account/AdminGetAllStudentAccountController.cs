@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RecordManagementSystem.Application.Features.Account.Service;
 
@@ -6,6 +7,7 @@ namespace RecordManagementSystem.Controllers.Account
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class AdminGetAllStudentAccountController : ControllerBase
     {
         private readonly AddStudentUserAccountServices _AddStudentAccountservices;
