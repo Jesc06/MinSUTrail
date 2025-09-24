@@ -146,7 +146,7 @@ namespace RecordManagementSystem.Controllers.Account
                 return Unauthorized();
             }
 
-            var newTokens = _generateToken.Token(savedToken.Username, "Student");
+            var newTokens = _generateToken.Token(savedToken.Username, "Admin");
             savedToken.Token = newTokens.RefreshToken;
             savedToken.ExpiryDate = newTokens.RefreshTokenExpiry;
             await _refreshTokenServiceApp.UpdateAsync(savedToken);

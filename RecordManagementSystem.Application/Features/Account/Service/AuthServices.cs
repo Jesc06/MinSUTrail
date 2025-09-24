@@ -61,13 +61,13 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             {
                 throw new UnauthorizedAccessException("Invalid or expired refresh token");
             }
-
+            
             var newTokens = _generateTokenService.GenerateToken(savedToken.Username, "Admin");
-
+            
             savedToken.Token = newTokens.RefreshToken;
             savedToken.ExpiryDate = newTokens.RefreshTokenExpiry;
             await _refreshToken.UpdateAsync(savedToken);
-
+            
             return newTokens;
 
         }

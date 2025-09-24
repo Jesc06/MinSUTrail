@@ -15,7 +15,7 @@ namespace RecordManagementSystem.Controllers.Account
             _AddStudentAccountservices = addStudentUserAccountServices;
         }
 
-
+       
         [Authorize(Roles = "Admin")]
         [HttpGet("GetAllStudentAccount")]
         public async Task<ActionResult> GetAllStudentAccount()

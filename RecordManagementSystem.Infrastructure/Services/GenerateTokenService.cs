@@ -39,14 +39,14 @@ namespace RecordManagementSystem.Infrastructure.Services
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: Claims,
-                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:ExpireMinutes"])),
+                expires: Expiration,
                 signingCredentials: creds
             );
             var Token = new JwtSecurityTokenHandler().WriteToken(token);
 
             //Refresh token method
             var refreshToken = GenerateRefreshToken();
-            var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            var refreshTokenExpiry = DateTime.UtcNow.AddMinutes(2);
 
             return new TokenResponseDTO
             {

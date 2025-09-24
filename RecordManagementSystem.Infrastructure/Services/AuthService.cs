@@ -48,7 +48,6 @@ namespace RecordManagementSystem.Infrastructure.Services
             return false;
         }
 
-
         public async Task<bool> Login(LoginDTO loginDTO)
         {
             var isLogin = await _signInManager.PasswordSignInAsync(loginDTO.Email, loginDTO.Password, true, true);
@@ -59,14 +58,10 @@ namespace RecordManagementSystem.Infrastructure.Services
             return false;
         }
 
-
         public async Task Logout()
         {
             await _signInManager.SignOutAsync();
         }
-
-
-
 
     }
 }
