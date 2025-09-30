@@ -46,17 +46,10 @@ builder.Services.AddIdentity<UserIdentity, IdentityRole>(option =>
 builder.Services.AddScoped<IAddStudentUserData, AddStudentUserAccountRepository>();
 builder.Services.AddScoped<AddStudentUserAccountServices>();
 
-builder.Services.AddScoped<IRefreshToken,RefreshTokenService>();
-builder.Services.AddScoped<RefreshTokenServiceApp>();
-
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<AuthServices>();
 
-builder.Services.AddScoped<IGenerateTokenService, GenerateTokenService>();
-builder.Services.AddScoped<GenerateToken>();
-
 builder.Services.AddScoped<IEmailService, EmailService>();
-
 
 
 //Email Service

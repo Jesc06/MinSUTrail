@@ -26,18 +26,14 @@ namespace RecordManagementSystem.Controllers.Account
     public class LoginRegisterController : ControllerBase
     {
         private readonly AddStudentUserAccountServices _AddStudentAccountservices;
-        private readonly RefreshTokenServiceApp _refreshTokenServiceApp;
-        private readonly GenerateToken _generateToken;
         private readonly AuthServices _authServices;
         private readonly IEmailService _emailService;
 
         
-        public LoginRegisterController(IEmailService emailService, AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices, RefreshTokenServiceApp refreshTokenServiceApp, GenerateToken generateToken)
+        public LoginRegisterController(IEmailService emailService, AddStudentUserAccountServices AddStudentAccountservices, AuthServices authServices)
         {
             _AddStudentAccountservices = AddStudentAccountservices;
             _authServices = authServices;
-            _refreshTokenServiceApp = refreshTokenServiceApp;
-            _generateToken = generateToken;
             _emailService = emailService;
         }
 
@@ -136,26 +132,7 @@ namespace RecordManagementSystem.Controllers.Account
             return BadRequest(ModelState.ValidationState);
         }
 
-
-        [HttpPost("Refresh Token")]
-        public async Task<ActionResult> RefreshToken([FromBody] JwtRefreshTokenDTO request)
-        {
-            var savedToken = await _refreshTokenServiceApp.GetByTokenAsync(request.RefreshToken);
-            if(savedToken == null || savedToken.ExpiryDate < DateTime.UtcNow || savedToken.IsRevoked)
-            {
-                return Unauthorized();
-            }
-
-            var newTokens = _generateToken.Token(savedToken.Username, "Admin");
-            savedToken.Token = newTokens.RefreshToken;
-            savedToken.ExpiryDate = newTokens.RefreshTokenExpiry;
-            await _refreshTokenServiceApp.UpdateAsync(savedToken);
-
-            return Ok(newTokens);
-
-        }
         
-
         [HttpPost("Logout")]
         public async Task<ActionResult> Logout()
         {

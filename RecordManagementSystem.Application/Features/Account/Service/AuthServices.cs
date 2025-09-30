@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using RecordManagementSystem.Application.Features.Account.DTO;
 using RecordManagementSystem.Application.Features.Account.Interface;
-using RecordManagementSystem.Domain.Entities.Token;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +12,9 @@ namespace RecordManagementSystem.Application.Features.Account.Service
     public class AuthServices
     {
         private readonly IAuthService _authService;
-        private readonly IGenerateTokenService _generateTokenService;
-        private readonly IRefreshToken _refreshToken;
-        public AuthServices(IAuthService authService, IGenerateTokenService generateTokenService, IRefreshToken refreshToken)
+        public AuthServices(IAuthService authService)
         {
             _authService = authService;
-            _generateTokenService = generateTokenService;
-            _refreshToken = refreshToken;
         }
 
         public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
@@ -32,46 +27,15 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return false;
         }
 
-        public async Task<TokenResponseDTO> Login(LoginDTO loginDTO)
+        public async Task<bool> Login(LoginDTO loginDTO)
         {
             var isLogin = await _authService.Login(loginDTO);
             if (isLogin)
             {
-                var token = _generateTokenService.GenerateToken(loginDTO.Email, "Admin");
-
-                var refreshToken = new RefreshToken
-                {
-                    Username = loginDTO.Email,
-                    Token = token.RefreshToken,
-                    ExpiryDate = token.RefreshTokenExpiry,
-                    IsRevoked = false
-                };
-
-                await _refreshToken.AddAsync(refreshToken); 
-                return token;   
+                return true;
             }
             throw new UnauthorizedAccessException("Invalid credentials!");
         }
-
-
-        public async Task<TokenResponseDTO> RefreshToken(RefreshTokenDTO refreshTokenDTO)
-        {
-            var savedToken = await _refreshToken.GetByTokenAsync(refreshTokenDTO.RefreshToken);
-            if(savedToken is null || savedToken.ExpiryDate < DateTime.UtcNow)
-            {
-                throw new UnauthorizedAccessException("Invalid or expired refresh token");
-            }
-            
-            var newTokens = _generateTokenService.GenerateToken(savedToken.Username, "Admin");
-            
-            savedToken.Token = newTokens.RefreshToken;
-            savedToken.ExpiryDate = newTokens.RefreshTokenExpiry;
-            await _refreshToken.UpdateAsync(savedToken);
-            
-            return newTokens;
-
-        }
-
 
         public async Task Logout()
         {
