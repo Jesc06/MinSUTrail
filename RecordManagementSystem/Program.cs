@@ -24,10 +24,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+//database connection string
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("default")
 ));
 
+
+//login && registered verification for secure credentials 
 builder.Services.AddIdentity<UserIdentity, IdentityRole>(option => 
     {
         option.Password.RequireDigit = false;
@@ -43,13 +47,13 @@ builder.Services.AddIdentity<UserIdentity, IdentityRole>(option =>
     .AddDefaultTokenProviders()
     .AddRoles<IdentityRole>();
 
+
+
 builder.Services.AddScoped<IAddStudentUserData, AddStudentUserAccountRepository>();
 builder.Services.AddScoped<AddStudentUserAccountServices>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<AuthServices>();
-
-builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 //Email Service
@@ -57,6 +61,8 @@ builder.Services.Configure<EmailSettingsDTO>(
     builder.Configuration.GetSection("EmailSettings")
 );
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+
 
 
 builder.Services.AddCors(options =>
@@ -72,8 +78,8 @@ builder.Services.AddCors(options =>
 });
 
 
+//JWT token configuration
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -98,12 +104,12 @@ builder.Services.AddAuthentication(options =>
 
     });
 
-   
-builder.Services.AddAuthorization();
 
+builder.Services.AddAuthorization();
 var app = builder.Build();
 
 
+//swagger UI redirection
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -125,6 +131,7 @@ app.MapGet("/", context =>
 });
 
 
+//Seeeded account configuration
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
