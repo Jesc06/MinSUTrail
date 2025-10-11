@@ -9,6 +9,8 @@ namespace RecordManagementSystem.Infrastructure.Persistence.Data
 {
     public class UserIdentity : IdentityUser
     {
+        public string? RefreshTokenHash { get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
