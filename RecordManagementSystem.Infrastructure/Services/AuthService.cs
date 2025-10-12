@@ -114,15 +114,6 @@ namespace RecordManagementSystem.Infrastructure.Services
 
         public async Task<Result<JwtRefreshTokenResponse>> JwtRefreshToken(JwtRefreshTokenRequest tokenRequest)
         {
-            // DEBUG: log all claims in the token
-            var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadJwtToken(tokenRequest.newAccessToken);
-
-            foreach (var c in token.Claims)
-            {
-                Console.WriteLine($"{c.Type} = {c.Value}");
-            }
-
             var principal = _jwtToken.GetPrincipalFromExpiredJwtToken(tokenRequest.newAccessToken);
             if (principal is null)
                 return Result<JwtRefreshTokenResponse>.Fail("Principal is null");
@@ -132,17 +123,21 @@ namespace RecordManagementSystem.Infrastructure.Services
                 ?? principal.FindFirst("name")?.Value;
 
             if (username is null)
-                return Result<JwtRefreshTokenResponse>.Fail("Principal username cannot find");
-
+                return Result<JwtRefreshTokenResponse>.Fail("Cannot find username in token");
 
             var user = await _userManager.FindByNameAsync(username);
             if (user is null)
-                return Result<JwtRefreshTokenResponse>.Fail("username cannot exist");
+                return Result<JwtRefreshTokenResponse>.Fail("User does not exist");
 
-            // Verify refresh token validity
-            var isValidRefreshToken = _jwtToken.VerfiyHashedJwtToken(user.RefreshTokenHash, tokenRequest.newRefreshToken);
-            if (!isValidRefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-                return Result<JwtRefreshTokenResponse>.Fail("refresh token not valid");
+            // Validate refresh token
+            bool isValidRefreshToken = _jwtToken.VerfiyHashedJwtToken(user.RefreshTokenHash, tokenRequest.newRefreshToken);
+
+            if (!isValidRefreshToken)
+                return Result<JwtRefreshTokenResponse>.Fail("Refresh token is invalid");
+
+            // ✅ Critical: check expiry (UTC)
+            if (!user.RefreshTokenExpiryTime.HasValue || user.RefreshTokenExpiryTime.Value <= DateTime.UtcNow)
+                return Result<JwtRefreshTokenResponse>.Fail("Refresh token has expired"); // reject if expired
 
             // Generate new tokens
             var newAccessToken = _jwtToken.GenerateAccessJwtToken(new JwtApplicationUser
@@ -155,19 +150,20 @@ namespace RecordManagementSystem.Infrastructure.Services
 
             var newRefreshToken = _jwtToken.GenerateRefreshJwtToken();
 
-            // Update stored refresh token hash and expiry
+            // Store hashed new refresh token + expiry (rotation optional)
             user.RefreshTokenHash = _jwtToken.HashRefreshToken(newRefreshToken);
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "2"));
+
+            // Expiry in minutes for testing
+            var refreshTokenDurationMinutes = int.Parse(_configuration["Jwt:RefreshTokenDurationInMinutes"] ?? "2");
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(refreshTokenDurationMinutes);
+
             await _userManager.UpdateAsync(user);
 
-            var response = new JwtRefreshTokenResponse
+            return Result<JwtRefreshTokenResponse>.Ok(new JwtRefreshTokenResponse
             {
                 newAccessToken = newAccessToken,
                 newRefreshToken = newRefreshToken
-            };
-
-            return Result<JwtRefreshTokenResponse>.Ok(response);
-
+            });
         }
 
         public async Task Logout()
