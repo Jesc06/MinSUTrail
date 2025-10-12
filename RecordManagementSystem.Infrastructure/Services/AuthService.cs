@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using RecordManagementSystem.Application.Features.Account.DTO;
@@ -21,12 +22,14 @@ namespace RecordManagementSystem.Infrastructure.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IJwtToken _jwtToken;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         public AuthService(SignInManager<UserIdentity> signInManager, 
                            UserManager<UserIdentity> userManager,
                            ApplicationDbContext context,
                            RoleManager<IdentityRole> roleManager,
                            IJwtToken jwtToken,
-                           IConfiguration configuration)
+                           IConfiguration configuration,
+                           IHttpContextAccessor httpContextAccessor)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -34,6 +37,7 @@ namespace RecordManagementSystem.Infrastructure.Services
             _roleManager = roleManager;
             _jwtToken = jwtToken;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerAccount)
@@ -91,8 +95,8 @@ namespace RecordManagementSystem.Infrastructure.Services
 
                 findUser.RefreshTokenHash = _jwtToken.HashRefreshToken(refreshToken);
                 findUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "14"));
-                await _userManager.UpdateAsync(findUser);
-
+                _context.Update(findUser);
+                await _context.SaveChangesAsync();
                 return new JwtTokenResponse
                 {
                     AccessToken = accessToken,
@@ -135,8 +139,9 @@ namespace RecordManagementSystem.Infrastructure.Services
             var newRefreshToken = _jwtToken.GenerateRefreshJwtToken();
 
             var newRefreshTokenHash = _jwtToken.HashRefreshToken(newRefreshToken);
-            var newRefreshTokenExpiryTime = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "14"));
-            await _userManager.UpdateAsync(user);
+            var newRefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "1"));
+            _context.Update(user);
+            await _context.SaveChangesAsync();
 
             return new JwtRefreshTokenResponse
             {
@@ -146,10 +151,17 @@ namespace RecordManagementSystem.Infrastructure.Services
 
         }
 
-
         public async Task Logout()
         {
-            await _signInManager.SignOutAsync();
+            var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            if (user is  not null)
+            {
+                user.RefreshTokenHash = null;
+                user.RefreshTokenExpiryTime = null;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+                await _signInManager.SignOutAsync();
+            }
         }
 
     }
