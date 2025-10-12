@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace RecordManagementSystem.Application.Features.Account.DTO
 {
-    public class JwtTokenDTO
+    public class JwtApplicationUser
     {
-        public int id { get; set; }
+        public string id { get; set; }
         public string username { get; set; }
         public string email { get; set; }
         public IList<string> Roles { get; set; } = new List<string>();

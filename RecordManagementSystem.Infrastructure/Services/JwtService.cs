@@ -33,8 +33,12 @@ namespace RecordManagementSystem.Infrastructure.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.username ?? ""),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.id.ToString())
+                new Claim("uid", user.id.ToString()),
+                new Claim("name", user.username ?? "")
             };
+
+            //add roles
+            claims.AddRange(user.Roles.Select(role => new Claim("role", role)));
 
             if(additionalClaims is not null) claims.AddRange(additionalClaims);
 

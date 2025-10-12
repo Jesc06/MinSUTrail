@@ -116,23 +116,42 @@ namespace RecordManagementSystem.Controllers.Account
 
 
         [HttpPost("Login")]
-        public async Task<ActionResult> Login(LoginApiDTO loginDTO)
+        public async Task<ActionResult<JwtRefreshTokenDTO>> Login([FromBody]LoginApiDTO loginDTO)
         {
             if (ModelState.IsValid)
             {
+
                 LoginDTO login = new LoginDTO
                 {
                     Email = loginDTO.Email,
                     Password = loginDTO.Password
                 };
-                var IsLogin = await _authServices.Login(login);
 
-                return Ok(IsLogin);
+                var result = await _authServices.Login(login);
+                
+                return Ok(result);
             }
             return BadRequest(ModelState.ValidationState);
         }
 
-        
+
+        [HttpPost("RefreshToken")]
+        public async Task<ActionResult<JwtRefreshTokenResponse>> JwtRefreshToken(JwtRefreshTokenResponseApi refreshToken)
+        {
+            if (ModelState.IsValid)
+            {
+                var token = new JwtRefreshTokenResponse
+                {
+                    newAccessToken = refreshToken.newAccessToken,
+                    newRefreshToken = refreshToken.newRefreshToken
+                };
+                var result = await _authServices.RefreshToken(token);
+                return Ok(result);  
+            }
+            return BadRequest(ModelState.ValidationState);
+        }
+
+
         [HttpPost("Logout")]
         public async Task<ActionResult> Logout()
         {

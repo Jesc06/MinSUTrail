@@ -27,14 +27,14 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return false;
         }
 
-        public async Task<bool> Login(LoginDTO loginDTO)
+        public async Task<JwtTokenResponse> Login(LoginDTO loginDTO)
         {
-            var isLogin = await _authService.Login(loginDTO);
-            if (isLogin)
-            {
-                return true;
-            }
-            throw new UnauthorizedAccessException("Invalid credentials!");
+            return await _authService.Login(loginDTO);
+        }
+
+        public async Task<JwtRefreshTokenResponse> RefreshToken(JwtRefreshTokenResponse refreshToken)
+        {
+            return await _authService.JwtRefreshToken(refreshToken);
         }
 
         public async Task Logout()

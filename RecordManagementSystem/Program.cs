@@ -20,16 +20,10 @@ using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
 //database connection string
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("default")
 ));
-
 
 //login && registered verification for secure credentials 
 builder.Services.AddIdentity<UserIdentity, IdentityRole>(option => 
@@ -40,13 +34,12 @@ builder.Services.AddIdentity<UserIdentity, IdentityRole>(option =>
         option.Password.RequireUppercase = false;
         option.Password.RequireNonAlphanumeric = false;
 
-        option.User.RequireUniqueEmail = true;
+        option.User.RequireUniqueEmail = false;
         option.SignIn.RequireConfirmedEmail = false;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders()
     .AddRoles<IdentityRole>();
-
 
 
 builder.Services.AddScoped<IAddStudentUserData, AddStudentUserAccountRepository>();
@@ -55,13 +48,14 @@ builder.Services.AddScoped<AddStudentUserAccountServices>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<AuthServices>();
 
+builder.Services.AddScoped<IJwtToken, JwtService>();
+
 
 //Email Service
 builder.Services.Configure<EmailSettingsDTO>(
     builder.Configuration.GetSection("EmailSettings")
 );
 builder.Services.AddScoped<IEmailService, EmailService>();
-
 
 
 
@@ -80,6 +74,8 @@ builder.Services.AddCors(options =>
 
 //JWT token configuration
 var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(jwtSettings["key"]!);
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -87,6 +83,8 @@ builder.Services.AddAuthentication(options =>
 })
     .AddJwtBearer(options =>
     {
+        options.RequireHttpsMetadata = true;
+        options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -95,7 +93,7 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["key"])),
+            IssuerSigningKey = new SymmetricSecurityKey(key),
             RoleClaimType = ClaimTypes.Role,
 
             ClockSkew = TimeSpan.Zero // remove 5 minutes grace
@@ -104,10 +102,12 @@ builder.Services.AddAuthentication(options =>
 
     });
 
-
 builder.Services.AddAuthorization();
-var app = builder.Build();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
+var app = builder.Build();
 
 //swagger UI redirection
 if (app.Environment.IsDevelopment())

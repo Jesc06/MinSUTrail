@@ -10,7 +10,8 @@ namespace RecordManagementSystem.Application.Features.Account.Interface
     public interface IAuthService
     {
         Task<bool> RegisterStudentAccount(RegisterStudentAccountDTO registerDTO);
-        Task<bool> Login(LoginDTO loginDTO);
+        Task<JwtTokenResponse> Login(LoginDTO loginDTO);
+        Task<JwtRefreshTokenResponse> JwtRefreshToken(JwtRefreshTokenResponse tokenResponse);
         Task Logout();
     }
 }
