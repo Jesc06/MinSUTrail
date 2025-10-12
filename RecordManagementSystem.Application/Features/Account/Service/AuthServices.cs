@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using RecordManagementSystem.Application.Common.Models;
 using RecordManagementSystem.Application.Features.Account.DTO;
 using RecordManagementSystem.Application.Features.Account.Interface;
 using System;
@@ -32,7 +33,7 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return await _authService.Login(loginDTO);
         }
 
-        public async Task<JwtRefreshTokenResponse> RefreshToken(JwtRefreshTokenResponse refreshToken)
+        public async Task<Result<JwtRefreshTokenResponse>> RefreshToken(JwtRefreshTokenRequest refreshToken)
         {
             return await _authService.JwtRefreshToken(refreshToken);
         }

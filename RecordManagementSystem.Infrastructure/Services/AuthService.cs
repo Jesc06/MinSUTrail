@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using RecordManagementSystem.Application.Common.Models;
 using RecordManagementSystem.Application.Features.Account.DTO;
 using RecordManagementSystem.Application.Features.Account.Interface;
 using RecordManagementSystem.Infrastructure.Persistence.Data;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -97,7 +99,7 @@ namespace RecordManagementSystem.Infrastructure.Services
                 var refreshToken = _jwtToken.GenerateRefreshJwtToken();
 
                 findUser.RefreshTokenHash = _jwtToken.HashRefreshToken(refreshToken);
-                findUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "14"));
+                findUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "2"));
                 await _userManager.UpdateAsync(findUser);
                 
                 return new JwtTokenResponse
@@ -110,47 +112,61 @@ namespace RecordManagementSystem.Infrastructure.Services
         }
 
 
-        public async Task<JwtRefreshTokenResponse> JwtRefreshToken(JwtRefreshTokenResponse tokenResponse)
+        public async Task<Result<JwtRefreshTokenResponse>> JwtRefreshToken(JwtRefreshTokenRequest tokenRequest)
         {
-            if(tokenResponse is null) return null;
+            // DEBUG: log all claims in the token
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(tokenRequest.newAccessToken);
 
-            var principal = _jwtToken.GetPrincipalFromExpiredJwtToken(tokenResponse.newAccessToken);
-            if(principal is null) return null;
+            foreach (var c in token.Claims)
+            {
+                Console.WriteLine($"{c.Type} = {c.Value}");
+            }
 
-            var username = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-            if (username is null) return null;
+            var principal = _jwtToken.GetPrincipalFromExpiredJwtToken(tokenRequest.newAccessToken);
+            if (principal is null)
+                return Result<JwtRefreshTokenResponse>.Fail("Principal is null");
+
+            var username = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? principal.FindFirst("name")?.Value;
+
+            if (username is null)
+                return Result<JwtRefreshTokenResponse>.Fail("Principal username cannot find");
+
 
             var user = await _userManager.FindByNameAsync(username);
-            if (user is null) return null;
+            if (user is null)
+                return Result<JwtRefreshTokenResponse>.Fail("username cannot exist");
 
-            if (user.RefreshTokenHash is null || user.RefreshTokenExpiryTime is null) return null;
-            if(user.RefreshTokenExpiryTime <= DateTime.UtcNow) return null; 
+            // Verify refresh token validity
+            var isValidRefreshToken = _jwtToken.VerfiyHashedJwtToken(user.RefreshTokenHash, tokenRequest.newRefreshToken);
+            if (!isValidRefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                return Result<JwtRefreshTokenResponse>.Fail("refresh token not valid");
 
-            var isValidRefreshToken = _jwtToken.VerfiyHashedJwtToken(user.RefreshTokenHash,tokenResponse.newRefreshToken);
-            if(!isValidRefreshToken)return null;
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var JwtApplicationUsers = new JwtApplicationUser
+            // Generate new tokens
+            var newAccessToken = _jwtToken.GenerateAccessJwtToken(new JwtApplicationUser
             {
                 id = user.Id,
                 username = user.UserName,
                 email = user.Email,
-                Roles = roles
-            };
+                Roles = await _userManager.GetRolesAsync(user)
+            });
 
-            var newAccessToken = _jwtToken.GenerateAccessJwtToken(JwtApplicationUsers);
             var newRefreshToken = _jwtToken.GenerateRefreshJwtToken();
 
+            // Update stored refresh token hash and expiry
             user.RefreshTokenHash = _jwtToken.HashRefreshToken(newRefreshToken);
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "1"));
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "2"));
             await _userManager.UpdateAsync(user);
 
-
-            return new JwtRefreshTokenResponse
+            var response = new JwtRefreshTokenResponse
             {
                 newAccessToken = newAccessToken,
                 newRefreshToken = newRefreshToken
             };
+
+            return Result<JwtRefreshTokenResponse>.Ok(response);
 
         }
 
