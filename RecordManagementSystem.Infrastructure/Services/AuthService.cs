@@ -76,7 +76,10 @@ namespace RecordManagementSystem.Infrastructure.Services
         public async Task<JwtTokenResponse> Login(LoginDTO loginDTO)
         {
             var findUser = await _userManager.FindByEmailAsync(loginDTO.Email);
-            var isLogin = await _signInManager.PasswordSignInAsync(loginDTO.Email, loginDTO.Password, true, true);
+
+            if (findUser is null) return null;
+
+            var isLogin = await _userManager.CheckPasswordAsync(findUser,loginDTO.Password);
 
             var getUserRoles = await _userManager.GetRolesAsync(findUser);
 
@@ -88,15 +91,15 @@ namespace RecordManagementSystem.Infrastructure.Services
                 Roles = getUserRoles
             };
 
-            if (isLogin.Succeeded)
+            if (isLogin)
             {
                 var accessToken = _jwtToken.GenerateAccessJwtToken(user);
                 var refreshToken = _jwtToken.GenerateRefreshJwtToken();
 
                 findUser.RefreshTokenHash = _jwtToken.HashRefreshToken(refreshToken);
                 findUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "14"));
-                _context.Update(findUser);
-                await _context.SaveChangesAsync();
+                await _userManager.UpdateAsync(findUser);
+                
                 return new JwtTokenResponse
                 {
                     AccessToken = accessToken,
@@ -138,10 +141,10 @@ namespace RecordManagementSystem.Infrastructure.Services
             var newAccessToken = _jwtToken.GenerateAccessJwtToken(JwtApplicationUsers);
             var newRefreshToken = _jwtToken.GenerateRefreshJwtToken();
 
-            var newRefreshTokenHash = _jwtToken.HashRefreshToken(newRefreshToken);
-            var newRefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "1"));
-            _context.Update(user);
-            await _context.SaveChangesAsync();
+            user.RefreshTokenHash = _jwtToken.HashRefreshToken(newRefreshToken);
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "1"));
+            await _userManager.UpdateAsync(user);
+
 
             return new JwtRefreshTokenResponse
             {
@@ -153,16 +156,17 @@ namespace RecordManagementSystem.Infrastructure.Services
 
         public async Task Logout()
         {
-            var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var user = await _userManager.FindByEmailAsync("escarezjohnjoshuamanalo@gmail.com");
             if (user is  not null)
             {
                 user.RefreshTokenHash = null;
                 user.RefreshTokenExpiryTime = null;
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
+                await _userManager.UpdateAsync(user);
+
                 await _signInManager.SignOutAsync();
             }
         }
+
 
     }
 }

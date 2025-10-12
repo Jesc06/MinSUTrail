@@ -152,6 +152,7 @@ namespace RecordManagementSystem.Controllers.Account
         }
 
 
+   
         [HttpPost("Logout")]
         public async Task<ActionResult> Logout()
         {
