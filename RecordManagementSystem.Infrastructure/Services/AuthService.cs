@@ -135,7 +135,7 @@ namespace RecordManagementSystem.Infrastructure.Services
             if (!isValidRefreshToken)
                 return Result<JwtRefreshTokenResponse>.Fail("Refresh token is invalid");
 
-            // ✅ Critical: check expiry (UTC)
+            // Critical: check expiry (UTC)
             if (!user.RefreshTokenExpiryTime.HasValue || user.RefreshTokenExpiryTime.Value <= DateTime.UtcNow)
                 return Result<JwtRefreshTokenResponse>.Fail("Refresh token has expired"); // reject if expired
 
