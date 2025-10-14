@@ -23,81 +23,74 @@ namespace RecordManagementSystem.Infrastructure.Services
             _key = Encoding.UTF8.GetBytes(_configuration["Jwt:key"]!);
         }
 
-
         public string GenerateAccessJwtToken(JwtApplicationUser user, IEnumerable<Claim>? additionalClaims = null)
         {
-            var jwtSettings = _configuration.GetSection("Jwt");
-            var durationInMinutes = double.Parse(jwtSettings["DurationInMinutes"] ?? "10");
+            var duration = double.Parse(_configuration["Jwt:DurationInMinutes"] ?? "1");
 
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.username ?? ""),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("uid", user.id.ToString()),
-                new Claim("name", user.username ?? "")
+                new Claim("uid", user.id.ToString())
             };
+            if (user.Roles != null)
+                claims.AddRange(user.Roles.Select(r => new Claim("role", r)));
 
-            //add roles
-            claims.AddRange(user.Roles.Select(role => new Claim("role", role)));
-
-            if(additionalClaims is not null) claims.AddRange(additionalClaims);
+            if (additionalClaims != null)
+                claims.AddRange(additionalClaims);
 
             var credentials = new SigningCredentials(new SymmetricSecurityKey(_key), SecurityAlgorithms.HmacSha256);
-            var JwtToken = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(durationInMinutes),
+                expires: DateTime.UtcNow.AddMinutes(duration),
                 signingCredentials: credentials
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(JwtToken);
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
 
         public string GenerateRefreshJwtToken()
         {
-            var randomBytes = new byte[64];
-            using var randomNumGenerator = RandomNumberGenerator.Create();
-            randomNumGenerator.GetBytes(randomBytes);
-            return Convert.ToBase64String(randomBytes);
+            var bytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(bytes);
+            return Convert.ToBase64String(bytes);
         }
 
-        public string HashRefreshToken(string refreshJwtToken)
+        public string HashRefreshToken(string token)
         {
             using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(refreshJwtToken);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
+            var bytes = Encoding.UTF8.GetBytes(token);
+            return Convert.ToBase64String(sha256.ComputeHash(bytes));
         }
 
-        public bool VerfiyHashedJwtToken(string hashed, string refreshJwtToken)
+        public bool VerfiyHashedJwtToken(string hash, string token)
         {
-            var hashOfInput = HashRefreshToken(refreshJwtToken);
-            return  hashed == hashOfInput;
+            return hash == HashRefreshToken(token);
         }
 
-        public ClaimsPrincipal? GetPrincipalFromExpiredJwtToken(string JwtToken)
+        public ClaimsPrincipal? GetPrincipalFromExpiredJwtToken(string token)
         {
-            var JwtSettings = _configuration.GetSection("Jwt");
-            var tokenValidationParameters = new TokenValidationParameters
+            var validationParams = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
-                ValidIssuer = JwtSettings["Issuer"],
-                ValidAudience = JwtSettings["Audience"],
+                ValidIssuer = _configuration["Jwt:Issuer"],
+                ValidAudience = _configuration["Jwt:Audience"],
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(_key),
-                ValidateLifetime = false
+                ValidateLifetime = false // allow expired token to get claims
             };
 
-            var tokenHandler = new JwtSecurityTokenHandler();
+            var handler = new JwtSecurityTokenHandler();
             try
             {
-                var principal = tokenHandler.ValidateToken(JwtToken, tokenValidationParameters, out var securityToken);
-                if (securityToken is not JwtSecurityToken jwt || 
+                var principal = handler.ValidateToken(token, validationParams, out var securityToken);
+                if (securityToken is not JwtSecurityToken jwt ||
                     !jwt.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                        return null;
+                    return null;
                 return principal;
             }
             catch

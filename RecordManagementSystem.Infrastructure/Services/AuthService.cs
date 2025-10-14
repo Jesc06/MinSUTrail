@@ -78,10 +78,10 @@ namespace RecordManagementSystem.Infrastructure.Services
         public async Task<JwtTokenResponse> Login(LoginDTO loginDTO)
         {
             var findUser = await _userManager.FindByEmailAsync(loginDTO.Email);
-
             if (findUser is null) return null;
 
-            var isLogin = await _userManager.CheckPasswordAsync(findUser,loginDTO.Password);
+            var isLogin = await _userManager.CheckPasswordAsync(findUser, loginDTO.Password);
+            if (!isLogin) return null;
 
             var getUserRoles = await _userManager.GetRolesAsync(findUser);
 
@@ -93,24 +93,22 @@ namespace RecordManagementSystem.Infrastructure.Services
                 Roles = getUserRoles
             };
 
-            if (isLogin)
+            var accessToken = _jwtToken.GenerateAccessJwtToken(user);
+            var refreshToken = _jwtToken.GenerateRefreshJwtToken();
+
+    
+            var refreshTokenDurationMinutes = int.Parse(_configuration["Jwt:RefreshTokenDurationInMinutes"] ?? "2");
+            findUser.RefreshTokenHash = _jwtToken.HashRefreshToken(refreshToken);
+            findUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(refreshTokenDurationMinutes);
+
+            await _userManager.UpdateAsync(findUser);
+
+            return new JwtTokenResponse
             {
-                var accessToken = _jwtToken.GenerateAccessJwtToken(user);
-                var refreshToken = _jwtToken.GenerateRefreshJwtToken();
-
-                findUser.RefreshTokenHash = _jwtToken.HashRefreshToken(refreshToken);
-                findUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenDurationInDays"] ?? "2"));
-                await _userManager.UpdateAsync(findUser);
-                
-                return new JwtTokenResponse
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken,
-                };
-            }
-            return null;
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
         }
-
 
         public async Task<Result<JwtRefreshTokenResponse>> JwtRefreshToken(JwtRefreshTokenRequest tokenRequest)
         {
@@ -119,52 +117,49 @@ namespace RecordManagementSystem.Infrastructure.Services
                 return Result<JwtRefreshTokenResponse>.Fail("Principal is null");
 
             var username = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
-                ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                ?? principal.FindFirst("name")?.Value;
+                           ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                           ?? principal.FindFirst("name")?.Value;
 
             if (username is null)
                 return Result<JwtRefreshTokenResponse>.Fail("Cannot find username in token");
 
-            var user = await _userManager.FindByNameAsync(username);
+            // Fetch user
+            var user = await _userManager.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserName == username);
             if (user is null)
-                return Result<JwtRefreshTokenResponse>.Fail("User does not exist");
+                return Result<JwtRefreshTokenResponse>.Fail("User not found");
 
-            // Validate refresh token
-            bool isValidRefreshToken = _jwtToken.VerfiyHashedJwtToken(user.RefreshTokenHash, tokenRequest.newRefreshToken);
-
-            if (!isValidRefreshToken)
-                return Result<JwtRefreshTokenResponse>.Fail("Refresh token is invalid");
-
-            // Critical: check expiry (UTC)
+            // Check if refresh token expired
             if (!user.RefreshTokenExpiryTime.HasValue || user.RefreshTokenExpiryTime.Value <= DateTime.UtcNow)
-                return Result<JwtRefreshTokenResponse>.Fail("Refresh token has expired"); // reject if expired
+                return Result<JwtRefreshTokenResponse>.Fail("Refresh token expired");
 
-            // Generate new tokens
+            // Verify refresh token hash
+            bool isValidRefreshToken = _jwtToken.VerfiyHashedJwtToken(user.RefreshTokenHash, tokenRequest.newRefreshToken);
+            if (!isValidRefreshToken)
+                return Result<JwtRefreshTokenResponse>.Fail("Invalid or reused refresh token");
+
+            //Optional: enforce single-use (invalidate after 1 refresh)
+            var trackedUser = await _userManager.FindByIdAsync(user.Id);
+            trackedUser.RefreshTokenHash = null;
+            trackedUser.RefreshTokenExpiryTime = null;
+            await _userManager.UpdateAsync(trackedUser);
+
+            //Generate new access token only (no new refresh token)
+            var roles = await _userManager.GetRolesAsync(user);
             var newAccessToken = _jwtToken.GenerateAccessJwtToken(new JwtApplicationUser
             {
                 id = user.Id,
                 username = user.UserName,
                 email = user.Email,
-                Roles = await _userManager.GetRolesAsync(user)
+                Roles = roles
             });
-
-            var newRefreshToken = _jwtToken.GenerateRefreshJwtToken();
-
-            // Store hashed new refresh token + expiry (rotation optional)
-            user.RefreshTokenHash = _jwtToken.HashRefreshToken(newRefreshToken);
-
-            // Expiry in minutes for testing
-            var refreshTokenDurationMinutes = int.Parse(_configuration["Jwt:RefreshTokenDurationInMinutes"] ?? "2");
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(refreshTokenDurationMinutes);
-
-            await _userManager.UpdateAsync(user);
 
             return Result<JwtRefreshTokenResponse>.Ok(new JwtRefreshTokenResponse
             {
                 newAccessToken = newAccessToken,
-                newRefreshToken = newRefreshToken
+                newRefreshToken = tokenRequest.newRefreshToken
             });
         }
+
 
         public async Task Logout()
         {
@@ -178,6 +173,7 @@ namespace RecordManagementSystem.Infrastructure.Services
                 await _signInManager.SignOutAsync();
             }
         }
+
 
 
     }
