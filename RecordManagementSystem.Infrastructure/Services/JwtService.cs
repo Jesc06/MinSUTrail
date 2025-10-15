@@ -23,7 +23,7 @@ namespace RecordManagementSystem.Infrastructure.Services
             _key = Encoding.UTF8.GetBytes(_configuration["Jwt:key"]!);
         }
 
-        public string GenerateAccessJwtToken(JwtApplicationUser user, IEnumerable<Claim>? additionalClaims = null)
+        public string GenerateAccessJwtToken(JwtApplicationUserDTO user, IEnumerable<Claim>? additionalClaims = null)
         {
             var duration = double.Parse(_configuration["Jwt:DurationInMinutes"] ?? "1");
 

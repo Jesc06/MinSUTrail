@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RecordManagementSystem.Application.Features.Account.DTO
 {
-    public class JwtRefreshTokenRequest
+    public class JwtRefreshTokenRequestDTO
     {
         public string newAccessToken { get; set; }
         public string newRefreshToken { get; set; }

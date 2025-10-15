@@ -46,5 +46,6 @@ namespace RecordManagementSystem.Infrastructure.Persistence.Seeder
             }
 
         }
+
     }
 }

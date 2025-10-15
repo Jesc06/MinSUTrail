@@ -64,18 +64,10 @@ namespace RecordManagementSystem.Infrastructure.Services
                 }
                 return true;
             }
-            if (!isRegister.Succeeded)
-            {
-                foreach (var error in isRegister.Errors)
-                {
-                    Console.WriteLine(error.Description); // o i-log sa ILogger
-                }
-                return false;
-            }
             return false;
         }
 
-        public async Task<JwtTokenResponse> Login(LoginDTO loginDTO)
+        public async Task<GenerateJwtTokenResponseDTO> Login(LoginDTO loginDTO)
         {
             var findUser = await _userManager.FindByEmailAsync(loginDTO.Email);
             if (findUser is null) return null;
@@ -85,7 +77,7 @@ namespace RecordManagementSystem.Infrastructure.Services
 
             var getUserRoles = await _userManager.GetRolesAsync(findUser);
 
-            JwtApplicationUser user = new JwtApplicationUser
+            JwtApplicationUserDTO user = new JwtApplicationUserDTO
             {
                 id = findUser.Id,
                 username = findUser.UserName,
@@ -103,39 +95,39 @@ namespace RecordManagementSystem.Infrastructure.Services
 
             await _userManager.UpdateAsync(findUser);
 
-            return new JwtTokenResponse
+            return new GenerateJwtTokenResponseDTO
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
         }
 
-        public async Task<Result<JwtRefreshTokenResponse>> JwtRefreshToken(JwtRefreshTokenRequest tokenRequest)
+        public async Task<Result<JwtRefreshTokenResponseDTO>> JwtRefreshToken(JwtRefreshTokenRequestDTO tokenRequest)
         {
             var principal = _jwtToken.GetPrincipalFromExpiredJwtToken(tokenRequest.newAccessToken);
             if (principal is null)
-                return Result<JwtRefreshTokenResponse>.Fail("Principal is null");
+                return Result<JwtRefreshTokenResponseDTO>.Fail("Principal is null");
 
             var username = principal.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
                            ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
                            ?? principal.FindFirst("name")?.Value;
 
             if (username is null)
-                return Result<JwtRefreshTokenResponse>.Fail("Cannot find username in token");
+                return Result<JwtRefreshTokenResponseDTO>.Fail("Cannot find username in token");
 
             // Fetch user
             var user = await _userManager.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserName == username);
             if (user is null)
-                return Result<JwtRefreshTokenResponse>.Fail("User not found");
+                return Result<JwtRefreshTokenResponseDTO>.Fail("User not found");
 
             // Check if refresh token expired
             if (!user.RefreshTokenExpiryTime.HasValue || user.RefreshTokenExpiryTime.Value <= DateTime.UtcNow)
-                return Result<JwtRefreshTokenResponse>.Fail("Refresh token expired");
+                return Result<JwtRefreshTokenResponseDTO>.Fail("Refresh token expired");
 
             // Verify refresh token hash
             bool isValidRefreshToken = _jwtToken.VerfiyHashedJwtToken(user.RefreshTokenHash, tokenRequest.newRefreshToken);
             if (!isValidRefreshToken)
-                return Result<JwtRefreshTokenResponse>.Fail("Invalid or reused refresh token");
+                return Result<JwtRefreshTokenResponseDTO>.Fail("Invalid or reused refresh token");
 
             //Optional: enforce single-use (invalidate after 1 refresh)
             var trackedUser = await _userManager.FindByIdAsync(user.Id);
@@ -145,7 +137,7 @@ namespace RecordManagementSystem.Infrastructure.Services
 
             //Generate new access token only (no new refresh token)
             var roles = await _userManager.GetRolesAsync(user);
-            var newAccessToken = _jwtToken.GenerateAccessJwtToken(new JwtApplicationUser
+            var newAccessToken = _jwtToken.GenerateAccessJwtToken(new JwtApplicationUserDTO
             {
                 id = user.Id,
                 username = user.UserName,
@@ -153,7 +145,7 @@ namespace RecordManagementSystem.Infrastructure.Services
                 Roles = roles
             });
 
-            return Result<JwtRefreshTokenResponse>.Ok(new JwtRefreshTokenResponse
+            return Result<JwtRefreshTokenResponseDTO>.Ok(new JwtRefreshTokenResponseDTO
             {
                 newAccessToken = newAccessToken,
                 newRefreshToken = tokenRequest.newRefreshToken

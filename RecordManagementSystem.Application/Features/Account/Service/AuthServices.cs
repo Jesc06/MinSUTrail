@@ -28,12 +28,12 @@ namespace RecordManagementSystem.Application.Features.Account.Service
             return false;
         }
 
-        public async Task<JwtTokenResponse> Login(LoginDTO loginDTO)
+        public async Task<GenerateJwtTokenResponseDTO> Login(LoginDTO loginDTO)
         {
             return await _authService.Login(loginDTO);
         }
 
-        public async Task<Result<JwtRefreshTokenResponse>> RefreshToken(JwtRefreshTokenRequest refreshToken)
+        public async Task<Result<JwtRefreshTokenResponseDTO>> RefreshToken(JwtRefreshTokenRequestDTO refreshToken)
         {
             return await _authService.JwtRefreshToken(refreshToken);
         }

@@ -135,13 +135,20 @@ namespace RecordManagementSystem.Controllers.Account
         }
 
 
+
         [HttpPost("RefreshToken")]
-        public async Task<ActionResult<JwtRefreshTokenResponse>> JwtRefreshToken([FromBody] JwtRefreshTokenRequest refreshToken)
+        public async Task<ActionResult<JwtRefreshTokenResponseDTO>> JwtRefreshToken([FromBody] JwtRefreshTokenResponseApiDTO refreshTokenDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authServices.RefreshToken(refreshToken);
+            var refresh = new JwtRefreshTokenRequestDTO
+            {
+                newAccessToken = refreshTokenDTO.newAccessToken,
+                newRefreshToken = refreshTokenDTO.newRefreshToken,
+            };
+
+            var result = await _authServices.RefreshToken(refresh);
             if (result is null)
                 return Unauthorized(new { message = "Invalid or expired refresh token" });
 

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace RecordManagementSystem.Application.Features.Account.DTO
 {
-    public class JwtTokenResponse
+    public class JwtRefreshTokenResponseDTO
     {
-        public string AccessToken { get; set; } 
-        public string RefreshToken { get; set; }
+        public string newAccessToken { get; set; }
+        public string newRefreshToken { get; set; }
     }
 }
