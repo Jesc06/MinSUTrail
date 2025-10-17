@@ -1,4 +1,7 @@
 # `Mindoro State University Bongabong Campus SAS RecordManagement System`
+
+---
+
 #### `AppSettings.json Configuration for this project`
 ```json
   "AllowedHosts": "*",
@@ -26,3 +29,16 @@
   "LastName":  "your lastname"
 }
 ```
+---
+### `Email OTP integration`
+<a>https://github.com/Jesc06/Email-Service-Asp.NetCore-Web-API.git</a>
+
+---
+
+Note: `This project is temporarily on hold due to another school project I’m developing.`
+
+<br>
+<br>
+<br>
+
+`Made with ❤️` by <b>John Joshua Manalo Escarez</b>
