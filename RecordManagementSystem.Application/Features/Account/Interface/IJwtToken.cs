@@ -11,7 +11,7 @@ namespace RecordManagementSystem.Application.Features.Account.Interface
 {
     public interface IJwtToken
     {
-        string GenerateAccessJwtToken(JwtApplicationUserDTO user, IEnumerable<Claim>? additionalClaims = null);
+        string GenerateAccessJwtToken(GenerateTokenDTO user, IEnumerable<Claim>? additionalClaims = null);
         string GenerateRefreshJwtToken();
         string HashRefreshToken(string refreshJwtToken);
         bool VerfiyHashedJwtToken(string hashedToken, string refreshJwtToken);

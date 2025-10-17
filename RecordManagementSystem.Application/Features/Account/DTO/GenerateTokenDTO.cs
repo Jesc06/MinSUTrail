@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RecordManagementSystem.Application.Features.Account.DTO
 {
-    public class JwtApplicationUserDTO
+    public class GenerateTokenDTO
     {
         public string id { get; set; }
         public string username { get; set; }

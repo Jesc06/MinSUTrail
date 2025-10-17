@@ -77,7 +77,7 @@ namespace RecordManagementSystem.Infrastructure.Services
 
             var getUserRoles = await _userManager.GetRolesAsync(findUser);
 
-            JwtApplicationUserDTO user = new JwtApplicationUserDTO
+            GenerateTokenDTO user = new GenerateTokenDTO
             {
                 id = findUser.Id,
                 username = findUser.UserName,
@@ -137,7 +137,7 @@ namespace RecordManagementSystem.Infrastructure.Services
 
             //Generate new access token only (no new refresh token)
             var roles = await _userManager.GetRolesAsync(user);
-            var newAccessToken = _jwtToken.GenerateAccessJwtToken(new JwtApplicationUserDTO
+            var newAccessToken = _jwtToken.GenerateAccessJwtToken(new GenerateTokenDTO
             {
                 id = user.Id,
                 username = user.UserName,
