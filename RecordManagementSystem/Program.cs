@@ -96,8 +96,7 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(key),
             RoleClaimType = ClaimTypes.Role,
 
-            ClockSkew = TimeSpan.Zero // remove 5 minutes grace
-            //kase kahit 1 minute na yung JWT token automatic may palugit na additional 5 minutes or 6 minutes bago tuluyan mawala
+            ClockSkew = TimeSpan.Zero 
         };
 
     });
