@@ -72,7 +72,7 @@ builder.Services.AddCors(options =>
 });
 
 
-//JWT token configuration
+#region--Jwt--
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["key"]!);
 
@@ -100,6 +100,7 @@ builder.Services.AddAuthentication(options =>
         };
 
     });
+#endregion
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
