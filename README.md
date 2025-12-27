@@ -47,10 +47,8 @@ To set up the project locally, update the `appsettings.json` in the API project 
 This system utilizes a custom email utility for OTP handling. You can view the core logic here:
 [Email-Service-Asp.NetCore-Web-API](https://github.com/Jesc06/Email-Service-Asp.NetCore-Web-API.git)
 
+
 ---
 
-> **Project Status:** Currently in active maintenance. Development prioritizes stability and core administrative features.
 
-**Author:** [John Joshua Manalo Escarez](https://github.com/Jesc06)
-*Full Stack Developer*
-
+Built with ❤️ by Joshuaesc
