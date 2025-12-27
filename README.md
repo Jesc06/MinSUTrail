@@ -10,7 +10,7 @@ The **SAS Record Management System** is a specialized administrative solution de
 * **Automated Provisioning:** Built-in data seeding for immediate system deployment and administrative setup.
 * **Performance-Oriented:** Developed with a focus on low latency and efficient data handling.
 
-## 🛠️ Technical Stack
+## Technical Stack
 
 * **Framework:** ASP.NET Core 9 (Web API)
 * **Database:** Microsoft SQL Server
@@ -18,7 +18,7 @@ The **SAS Record Management System** is a specialized administrative solution de
 * **Security:** JWT, Refresh Tokens, and BCrypt Encryption
 * **Communication:** SMTP-based Email Integration
 
-## ⚙️ Configuration Guide
+## Configuration Guide
 
 To set up the project locally, update the `appsettings.json` in the API project with your credentials:
 
