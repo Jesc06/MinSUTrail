@@ -1,4 +1,4 @@
-# 🎓 MinSU-BC Student Affairs Services (SAS) Record Management System
+# MinSU-BC Student Affairs Services (SAS) Record Management System
 
 The **SAS Record Management System** is a robust, enterprise-grade solution tailored for Mindoro State University - Bongabong Campus. Built on the **Clean Architecture** pattern, this system ensures a scalable, maintainable, and secure environment for managing student records and administrative workflows.
 
