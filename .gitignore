@@ -5,6 +5,7 @@
 *.userosscache
 *.sln.docstates
 
+.idea/
 
 # Build results
 bin/
