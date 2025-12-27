@@ -5,7 +5,8 @@
 *.userosscache
 *.sln.docstates
 
-.idea/.idea.minsu-sas-rms/.idea
+**/.idea/
+
 
 # Build results
 bin/
