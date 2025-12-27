@@ -1,4 +1,4 @@
-# MinSu (RMS)
+# MinSU (RMS)
 
 The **SAS Record Management System** is a specialized administrative solution developed for Mindoro State University – Bongabong Campus. It is designed to streamline student record-keeping and administrative workflows through a secure, high-performance web API.
 
