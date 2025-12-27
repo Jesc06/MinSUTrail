@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RecordManagementSystem.Domain\RecordManagementSystem.Domain.csproj" />
+    <ProjectReference Include="..\minsu-rms.Domain\minsu-rms.Domain.csproj" />
   </ItemGroup>
 
 </Project>

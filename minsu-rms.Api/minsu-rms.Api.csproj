@@ -21,9 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RecordManagementSystem.Application\RecordManagementSystem.Application.csproj" />
-    <ProjectReference Include="..\RecordManagementSystem.Domain\RecordManagementSystem.Domain.csproj" />
-    <ProjectReference Include="..\RecordManagementSystem.Infrastructure\RecordManagementSystem.Infrastructure.csproj" />
+    <ProjectReference Include="..\minsu-rms.Application\minsu-rms.Application.csproj" />
+    <ProjectReference Include="..\minsu-rms.Domain\minsu-rms.Domain.csproj" />
+    <ProjectReference Include="..\minsu-rms.Infrastructure\minsu-rms.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
