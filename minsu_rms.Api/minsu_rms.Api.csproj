@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNetEnv" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
@@ -22,13 +23,15 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="Data\" />
-    <Folder Include="Infrastructure\Configuration\" />
-    <Folder Include="Infrastructure\ExternalApis\" />
-    <Folder Include="Repositories\Implementations\" />
-    <Folder Include="Repositories\Interfaces\" />
-    <Folder Include="Services\Implementations\" />
-    <Folder Include="Services\Interfaces\" />
+    <Folder Include="Core\DTOs\" />
+    <Folder Include="Core\Entities\" />
+    <Folder Include="Core\Interfaces\" />
+    <Folder Include="Infrastructure\Authentication\" />
+    <Folder Include="Infrastructure\Data\Context\" />
+    <Folder Include="Infrastructure\Data\Repositories\" />
+    <Folder Include="Infrastructure\Extensions\" />
+    <Folder Include="Infrastructure\ExternalServices\" />
+    <Folder Include="Logic\Services\" />
   </ItemGroup>
 
 </Project>
