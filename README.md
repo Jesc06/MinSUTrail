@@ -2,7 +2,7 @@
 
 The **SAS Record Management System** is a specialized administrative solution developed for Mindoro State University – Bongabong Campus. It is designed to streamline student record-keeping and administrative workflows through a secure, high-performance web API.
 
-## 🚀 Core Features
+## Core Features
 
 * **Secure Authentication:** Robust Identity management using JWT (JSON Web Tokens) with secure refresh token rotation.
 * **OTP Verification:** Integrated One-Time Password (OTP) system via email for identity verification and account recovery.
